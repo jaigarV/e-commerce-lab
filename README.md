@@ -1,2 +1,3 @@
-# e-commerce-lab
-An Internet e-commerce site
+# The real Swedish Amazon
+
+An Internet e-commerce site project to learn about databases
