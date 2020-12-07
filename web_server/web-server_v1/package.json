@@ -1,0 +1,17 @@
+{
+	"name": "Elshoppen_server",
+	"version": "0.1.0",
+	"description": "The first version of the web server for Elshoppen e-commerce website",
+	"main": "server.js",
+	"repository": "https://github.com/jaigarV/e-commerce-lab",
+	"private": true,
+	"license": "MIT",
+	"engines": {
+		"node": ">= 14.0.0",
+		"npm": ">= 6.0.0"
+	},
+	"dependencies": {
+		"express": "^4.17.1",
+		"mysql": "^2.18.1"
+	}
+}
