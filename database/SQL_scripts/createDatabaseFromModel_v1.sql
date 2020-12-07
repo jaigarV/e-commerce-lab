@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS `ecommerce_database`.`CUSTOMER` (
   `Country` VARCHAR(20) NULL,
   PRIMARY KEY (`IdentityNumber`),
   UNIQUE INDEX `Email_UNIQUE` (`Email` ASC) VISIBLE);
--- It defualt so we can remove it ENGINE = InnoDB;
+-- It is set by default so we can remove it ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
@@ -134,12 +134,22 @@ USE `ecommerce_database`;
 
 DELIMITER $$
 USE `ecommerce_database`$$
-CREATE DEFINER = CURRENT_USER TRIGGER `ecommerce_database`.`ORDER_STORE_PRICE` AFTER INSERT ON `ORDER` FOR EACH ROW
+CREATE DEFINER = CURRENT_USER TRIGGER `ecommerce_database`.`ORDER_STORE_PRICE` BEFORE INSERT ON `ORDER` FOR EACH ROW
 BEGIN
-	UPDATE `ORDER` AS `O`
-    SET `O`.`ProductPriceThen` = `PRODUCT`.`Price`
-    WHERE `ORDER`.`ProductPriceThen` IS NULL AND `O`.`ProductID` = `PRODUCT`.`ProductID`;
-END$$
+	IF NEW.`ProductPriceThen` IS NULL THEN
+		SET NEW.`ProductPriceThen` = 
+		(SELECT `Price` FROM `PRODUCT`
+		WHERE NEW.`ProductID` = `PRODUCT`.`ProductID`);
+	END IF;
+END;
 
+-- SET NEW `ProductPriceThen` = `PRODUCT`.`Price`;
+-- BEGIN
+	-- UPDATE `ORDER` AS `O`
+    -- INNER JOIN `PRODUCT` ON `O`.`ProductID` = `PRODUCT`.`ProductID`
+	-- SET `O`.`ProductPriceThen` = `PRODUCT`.`Price`
+    -- WHERE `O`.`ProductPriceThen` IS NULL;
+-- END
 
+$$
 DELIMITER ;
