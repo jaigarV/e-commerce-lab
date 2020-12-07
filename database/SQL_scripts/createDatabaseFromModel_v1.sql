@@ -12,16 +12,16 @@ SET GLOBAL SQL_MODE='ALLOW_INVALID_DATES';
 -- Table `ecommerce_database`.`CUSTOMER`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `ecommerce_database`.`CUSTOMER` (
-  `IndentityNumber` INT(9) NOT NULL,
+  `IdentityNumber` INT NOT NULL,
   `Name` VARCHAR(25) NOT NULL,
   `Password` VARCHAR(16) NOT NULL,
   `Email` VARCHAR(25) NOT NULL,
-  `Phone`  INT(11) NOT NULL,
+  `Phone`  INT NOT NULL,
   `Address` VARCHAR(60) NOT NULL,
   `Gender` ENUM('Male', 'Female', 'Other') NULL,
-  `Age` INT(3) NULL,
+  `Age` INT NULL,
   `Country` VARCHAR(20) NULL,
-  PRIMARY KEY (`IndentityNumber`),
+  PRIMARY KEY (`IdentityNumber`),
   UNIQUE INDEX `Email_UNIQUE` (`Email` ASC) VISIBLE);
 -- It defualt so we can remove it ENGINE = InnoDB;
 
@@ -30,11 +30,11 @@ CREATE TABLE IF NOT EXISTS `ecommerce_database`.`CUSTOMER` (
 -- Table `ecommerce_database`.`SELLER`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `ecommerce_database`.`SELLER` (
-  `OrganizationID` INT(9) NOT NULL,
+  `OrganizationID` INT NOT NULL,
   `Name` VARCHAR(25) NOT NULL,
   `Password` VARCHAR(16) NOT NULL,
   `Email` VARCHAR(25) NOT NULL,
-  `Phone` INT(11) NOT NULL,
+  `Phone` INT NOT NULL,
   `Address` VARCHAR(60) NOT NULL,
   `Country` VARCHAR(20) NULL,
   PRIMARY KEY (`OrganizationID`),
@@ -45,11 +45,11 @@ CREATE TABLE IF NOT EXISTS `ecommerce_database`.`SELLER` (
 -- Table `ecommerce_database`.`ADMINISTRATOR`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `ecommerce_database`.`ADMINISTRATOR` (
-  `IdentityNumber` INT(9) NOT NULL,
+  `IdentityNumber` INT NOT NULL,
   `Name` VARCHAR(25) NOT NULL,
   `Password` VARCHAR(24) NOT NULL,
   `Email` VARCHAR(25) NOT NULL,
-  `Phone` INT(11) NOT NULL,
+  `Phone` INT NOT NULL,
   PRIMARY KEY (`IdentityNumber`));
 
 
@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS `ecommerce_database`.`PRODUCT` (
   `Quantity` INT UNSIGNED NOT NULL,
   `DescriptionText` MEDIUMTEXT NULL,
   `DescriptionImage` MEDIUMBLOB NULL,
-  `Seller` INT(9) NOT NULL,
+  `Seller` INT NOT NULL,
   PRIMARY KEY (`ProductID`),
   INDEX `fk_SELLER_idx` (`Seller` ASC) VISIBLE,
   CONSTRAINT `fk_SELLER`
@@ -78,12 +78,12 @@ CREATE TABLE IF NOT EXISTS `ecommerce_database`.`PRODUCT` (
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `ecommerce_database`.`SHOPPING CART` (
   `Shopping_cartID` INT NOT NULL AUTO_INCREMENT,
-  `Buyer` INT(9) NULL,
+  `Buyer` INT NULL,
   PRIMARY KEY (`Shopping_cartID`),
   INDEX `Customer_idx` (`Buyer` ASC) VISIBLE,
   CONSTRAINT `fk_CUSTOMER`
     FOREIGN KEY (`Buyer`)
-    REFERENCES `ecommerce_database`.`CUSTOMER` (`IndentityNumber`)
+    REFERENCES `ecommerce_database`.`CUSTOMER` (`IdentityNumber`)
     ON DELETE NO ACTION
     ON UPDATE CASCADE);
 
