@@ -51,7 +51,7 @@ const server = http.createServer(function (req, res) {
 		// Respond with HTML web page
 		res.writeHead(200, {'Content-Type': 'text/html'});
 		// Read file as a Stream
-		const streamFile = fs.createReadStream(__dirname + '/views/Clothing_Store_v1.html')
+		const streamFile = fs.createReadStream(__dirname + '/views/Homepage_v1.html')
 			.on("error", (e) => { // Will be thrown in file is not found, for example
 				console.error(e.stack);
 				res.writeHead(500);
