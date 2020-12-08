@@ -7,15 +7,25 @@ const mysql = require('mysql');
 const express = require('express');
 const app = express();
 
-app.set('views', './views') // Specify the views directory
-app.set('view engine', 'ejs') // Register the template engine
-
-// Switch to Express to crate the web server, instead of http
+//Switch to Express to crate the web server, instead of http
 //const http = require('http');
 
-// It is usually not necessary to use the stream module to consume streams
+//It is usually not necessary to use the stream module to consume streams
 //const stream = require('stream');
 
+//Register ejs as .html. If we did not call this, we would need to name our views foo.ejs instead of foo.html.
+app.engine('.html', require('ejs').__express);
+app.set('view engine', 'ejs'); // Register the template engine
+app.set('views', './views'); // Specify the views directory
+
+// Include parsing middleware before the routes
+//Parse URL-encoded bodies (as sent by HTML forms)
+app.use(express.urlencoded({ extended: true }));
+
+// Parse JSON bodies (as sent by API clients)
+app.use(express.json());
+
+// Port where the server will listen to
 const port = 80;
 
 // Add MySQL database connection properties
@@ -28,8 +38,11 @@ const connectionDB = mysql.createConnection({
 
 // Attempt connection to MySQL database
 connectionDB.connect(function(err) {
-	if (err) throw err;
-	console.log("Connected!");
+	if (err){
+		console.error('Error connecting: ' + err.stack);
+		throw err;
+	}
+	console.log("Connected as id " + connectionDB.threadId);
 });
 
 function printRequest(req, res, next) {
@@ -54,32 +67,112 @@ app.post('/customer/register', printRequest, function (req, res) {
 	// Create new customer in database with req body data
 	
 	// Test with predefined values
-	let queryValues  = {id: 1, title: 'Hello MySQL'};
+//	let testCustomer  = {IdentityNumber: 1010101, Name: 'Node JS Customer', 
+//			Password: "neverGuess", Email: "node@test.com", Phone: 0101010, 
+//			Address:"Node js house USA", Age:1000};
+	
+	let newCustomer = req.body;
+	// Seems that JSON has problems with numbers starting with 0, so we send them as String and convert them
+	newCustomer.IdentityNumber = parseInt(newCustomer.IdentityNumber, 10);
+	newCustomer.Phone = parseInt(newCustomer.Phone, 10);
+	console.log(newCustomer);
 	
 	fs.readFile( __dirname + '/queries/create_customers.sql','utf8', function(err, data) {
-		connectionDB.query(data, queryValues, function (err, result) {
-			if (err){
-				console.error(err.stack);
+		connectionDB.query(data, newCustomer)
+		.on('error', (err) => {
+			if(err.code === 'ER_DUP_ENTRY'){
+				console.error(err);
+				res.status(400).send(err.sqlMessage);
+			} else {
+				//console.error(err.stack);
+				res.status(500).send();
 				throw err;
 			}
-		    console.log(result);
-		    
+		}).on('result', (result) => {
+//			console.log(result);
 		    // Send confirmation to client
-//			res.send(result);
+			res.status(201).send(newCustomer);
 		});
 	});
 });
 
 app.put('/customer/login', printRequest, function (req, res) {
 	// Check customer is in database and retrieve its data and shopping carts
+	
+	// Test with predefined values
+//	let testCustomer  = {IdentityNumber: 123456789, Password: "test"};
+//	let inserts = [testCustomer.IdentityNumber, testCustomer.Password];
+	
+	let inserts = [req.body.IdentityNumber, req.body.Password];
+	
+	fs.readFile( __dirname + '/queries/find_customers.sql','utf8', function(err, data) {
+		let sql = mysql.format(data, inserts);
+//		console.log(sql);
+		connectionDB.query(sql, function (err, result) {
+			if (err){
+				res.status(500).send();
+				throw err;
+			} else {
+				if(result.lenght !== 0){
+					res.status(200).send(result);
+				} else {
+					res.status(404).send();
+				}
+				console.log(result);
+			}
+		});
+	});
 });
 
 app.post('/seller/register', printRequest, function (req, res) {
 	// Create new seller in database with req body data
+	
+	let newSeller = req.body;
+	// Seems that JSON has problems with numbers starting with 0, so we send them as String and convert them
+	newSeller.OrganizationID = parseInt(newSeller.OrganizationID, 10);
+	newSeller.Phone = parseInt(newSeller.Phone, 10);
+	console.log(newSeller);
+	
+	fs.readFile( __dirname + '/queries/create_seller.sql','utf8', function(err, data) {
+		connectionDB.query(data, newSeller)
+		.on('error', (err) => {
+			if(err.code === 'ER_DUP_ENTRY'){
+				console.error(err);
+				res.status(400).send(err.sqlMessage);
+			} else {
+				//console.error(err.stack);
+				throw err;
+			}
+		}).on('result', (result) => {
+//			console.log(result);
+		    // Send confirmation to client
+			res.status(201).send(newSeller);
+		});
+	});
 });
 
 app.put('/seller/login', printRequest, function (req, res) {
 	// Check seller is in database and retrieve its selling products
+	
+	let inserts = [req.body.OrganizationID, req.body.Password];
+	
+	fs.readFile( __dirname + '/queries/find_seller.sql','utf8', function(err, data) {
+		let sql = mysql.format(data, inserts);
+//		console.log(sql);
+		connectionDB.query(sql, function (err, result) {
+			if (err){
+				res.status(500).send();
+				throw err;
+			} else {
+				if(result.lenght !== 0){
+					res.status(200).send(result);
+				} else {
+					res.status(404).send();
+				}
+				console.log(result);
+			}
+		});
+	});
 });
 
 app.post('/product', printRequest, function (req, res) {
@@ -137,6 +230,9 @@ app.use(function (req, res, next) {
 
 //Start the server, default port for http is 80
 app.listen(port, () => { 
-	console.log(`Example app listening at http://localhost:${port}`);
+	console.log(`Elshoppen server listening at http://localhost:${port}`);
+}).on("error", (e) => {
+	// Handle error event on server, i.e. when server listens on port < 1024 and does not have root privileges
+	console.error(e.stack);
 });
 
