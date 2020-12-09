@@ -94,7 +94,7 @@ connectionDB.connect(function(err) {
 // Create server routes
 app.get('/', printRequest, function (req, res) {
 	// Read file as a Stream
-	const streamFile = fs.createReadStream(__dirname + '/views/Homepage_v1.html')
+	const streamFile = fs.createReadStream(__dirname + '/views/index.html')
 		.on("error", (e) => { // Will be thrown in file is not found, for example
 			console.error(e.stack);
 			res.status(500).end();
