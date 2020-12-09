@@ -1,0 +1,1 @@
+UPDATE `ecommerce_database`.`PRODUCT` SET ? WHERE `PRODUCT`.`ProductID` = ?;

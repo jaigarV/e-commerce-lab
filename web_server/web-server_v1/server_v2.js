@@ -1,17 +1,26 @@
 /**
  * http://usejsdoc.org/
  */
+// ----------------  Requires  ------------------
 
 const fs = require('fs');
 const mysql = require('mysql');
+// Express is the most famous Node.js web application framework (npm install express)
 const express = require('express');
-const app = express();
+// Multer is a popular Express middleware for handling multipart/form-data (images and text) (npm install multer)
+const multer = require('multer');
+// To get file extensions on uploads
+const path = require('path');
 
 //Switch to Express to crate the web server, instead of http
 //const http = require('http');
 
 //It is usually not necessary to use the stream module to consume streams
 //const stream = require('stream');
+
+//----------------  Configurations  ------------------
+
+const app = express();
 
 //Register ejs as .html. If we did not call this, we would need to name our views foo.ejs instead of foo.html.
 app.engine('.html', require('ejs').__express);
@@ -25,8 +34,41 @@ app.use(express.urlencoded({ extended: true }));
 // Parse JSON bodies (as sent by API clients)
 app.use(express.json());
 
+// Specify how to store the uploaded files for Multer
+const storage = multer.diskStorage({
+    destination: function(req, file, cb) {
+    	// Remeber to create folder or it will crash
+        cb(null, './uploads/');
+    },
+
+    // By default, multer removes file extensions so let's add them back
+    filename: function(req, file, cb) {
+        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+//    	cb(null, file.fieldname + path.extname(file.originalname));
+    }
+});
+
+// Specify how to filter the uploaded files for Multer
+const imageFilter = function(req, file, cb) {
+    // Accept images only
+    if (!file.originalname.match(/\.(jpg|JPG|jpeg|JPEG|png|PNG|gif|GIF)$/)) {
+        req.fileValidationError = 'Only image files are allowed!';
+        return cb(new Error('Only image files are allowed!'), false);
+    }
+    cb(null, true);
+};
+
+// Add the Multer configuration
+const upload = multer({ storage: storage, fileFilter: imageFilter });
+
 // Port where the server will listen to
 const port = 80;
+
+// Log all the requests in the console with their method and sender
+function printRequest(req, res, next) {
+	console.log("Received request: " + req.method + " " + req.headers.host + " "+ req.url);
+	next(); // Express way to chain middlewares
+}
 
 // Add MySQL database connection properties
 const connectionDB = mysql.createConnection({
@@ -35,6 +77,8 @@ const connectionDB = mysql.createConnection({
 	password: "arrowhead",
 	database: "ecommerce_database"
 });
+
+//----------------  Connections and routes  ------------------
 
 // Attempt connection to MySQL database
 connectionDB.connect(function(err) {
@@ -45,16 +89,23 @@ connectionDB.connect(function(err) {
 	console.log("Connected as id " + connectionDB.threadId);
 });
 
-function printRequest(req, res, next) {
-	console.log("Received request: " + req.method + " " + req.headers.host + " "+ req.url);
-	next();
-}
+
 
 // Create server routes
-
 app.get('/', printRequest, function (req, res) {
 	// Read file as a Stream
 	const streamFile = fs.createReadStream(__dirname + '/views/Homepage_v1.html')
+		.on("error", (e) => { // Will be thrown in file is not found, for example
+			console.error(e.stack);
+			res.status(500).end();
+		});
+	streamFile.pipe(res);
+	res.on("end", () => res.end());
+});
+
+app.get('/test', printRequest, function (req, res) {
+	// Read file as a Stream
+	const streamFile = fs.createReadStream(__dirname + '/views/test.html')
 		.on("error", (e) => { // Will be thrown in file is not found, for example
 			console.error(e.stack);
 			res.status(500).end();
@@ -175,12 +226,88 @@ app.put('/seller/login', printRequest, function (req, res) {
 	});
 });
 
-app.post('/product', printRequest, function (req, res) {
+app.post('/product', printRequest, upload.single("upload_image"), function (req, res) {
 	// Create new product in database with req body data
+	
+	let newProduct = req.body;
+	console.log(newProduct);
+	
+	newProduct.Seller = parseInt(newProduct.Seller, 10);
+	
+	if(req.file){
+		newProduct.DescriptionImage = fs.readFileSync(req.file.path);
+	}
+	
+	// Handle possible file upload -- Not working
+//	upload(req, res, function (err) {
+//		if(req.file){
+//			if (req.fileValidationError) {
+//	            return res.status(400).send(req.fileValidationError);
+//	        } else if (err){
+//	        	res.status(500).send();
+//	        	throw err;
+//	        } else {
+//	        	newProduct.DescriptionImage = req.file;
+//	        }
+//		}
+//	});
+	
+	fs.readFile( __dirname + '/queries/create_product.sql','utf8', function(err, data) {
+//		let sql = mysql.format(data, newProduct);
+//		console.log(sql);
+		connectionDB.query(data, newProduct)
+		.on('error', (err) => {
+			if(err.code === 'ER_DUP_ENTRY'){
+				console.error(err);
+				res.status(400).send(err.sqlMessage);
+			} else {
+				//console.error(err.stack);
+				throw err;
+			}
+		}).on('result', (result) => {
+//			console.log(result);
+		    // Send confirmation to client
+			res.status(201).send(newProduct);
+		});
+	});
 });
 
-app.put('/product', printRequest, function (req, res) {
+app.post('/product/update', printRequest, upload.single("upload_image"), function (req, res) {
 	// Update product in database with req body data
+	
+	let updates = req.body;
+	Object.keys(updates).forEach((key) => {
+		if(updates[key] == null || updates[key] == undefined || updates[key] === "") {
+			delete updates[key];
+		}
+	});
+	console.log(updates);
+	
+	let id = updates.ProductID;
+	delete updates.ProductID;
+	
+	if(req.file){
+		updates.DescriptionImage = fs.readFileSync(req.file.path);
+	}
+	
+	fs.readFile( __dirname + '/queries/update_product.sql','utf8', function(err, data) {
+//		let sql = mysql.format(data, [updates, id]);
+//		console.log(sql);
+		connectionDB.query(data, [updates, id])
+		.on('error', (err) => {
+			if(err.code === 'ER_DUP_ENTRY'){
+				console.error(err);
+				res.status(400).send(err.sqlMessage);
+			} else {
+				//console.error(err.stack);
+				throw err;
+			}
+		}).on('result', (result) => {
+//			console.log(result);
+		    // Send confirmation to client
+			res.status(201).send(updates);
+		});
+	});
 });
 
 app.put('/buy/:product', printRequest, function (req, res) {
@@ -220,7 +347,8 @@ app.get('test/query', printRequest, function (req, res) {
 
 app.use(function (err, req, res, next) {
 	console.error(err.stack);
-	res.status(500).send('Something broke! This is probably the fault of the developer, do not worry');
+	res.status(500).send('Something broke in the server!' +
+			'This is probably the fault of the developer, do not worry');
 });
 
 // Assume 404 since no middleware responded
@@ -232,7 +360,8 @@ app.use(function (req, res, next) {
 app.listen(port, () => { 
 	console.log(`Elshoppen server listening at http://localhost:${port}`);
 }).on("error", (e) => {
-	// Handle error event on server, i.e. when server listens on port < 1024 and does not have root privileges
+	// Handle error event on server, 
+	// i.e. when server listens on port < 1024 and does not have root privileges
 	console.error(e.stack);
 });
 

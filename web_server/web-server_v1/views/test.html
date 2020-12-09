@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<meta charset="UTF-8">
+<head>
+</head>
+<body>
+	This is the HTML page to test uploading images<br>
+	Here we create a new product
+	<script>console.log("Inline script");</script>
+	<div id="create-product">
+		<form action="product" method="post" enctype="multipart/form-data">
+			<input type="text" placeholder="Name of product" name="Name"><br>
+			<input type="text" placeholder="Price of product" name="Price"><br>
+			<input type="text" placeholder="Quantity of product" name="Quantity"><br>
+			<input type="text" placeholder="Description of product" name="DescriptionText"><br>
+			<input type="text" placeholder="Seller of product" name="Seller"><br>
+			<label>Select your product picture:</label>
+			<input type="file" name="upload_image"><br>
+			<input type="submit"  value="Add new product">
+		</form>
+	</div>
+	
+	This is the HTML page to test uploading images<br>
+	Here we create a update an already existing product
+	<div id="update-product">
+		<form action="product/update" method="post" enctype="multipart/form-data">
+			<input type="text" placeholder="Id of product" name="ProductID"><br>
+			<input type="text" placeholder="Name of product" name="Name"><br>
+			<input type="text" placeholder="Price of product" name="Price"><br>
+			<input type="text" placeholder="Quantity of product" name="Quantity"><br>
+			<input type="text" placeholder="Description of product" name="DescriptionText"><br>
+			<input type="text" placeholder="Seller of product" name="Seller"><br>
+			<label>Select your product picture:</label>
+			<input type="file" name="upload_image"><br>
+			<input type="submit"  value="Update product">
+		</form>
+	</div>
+
+</body>
+</html>
