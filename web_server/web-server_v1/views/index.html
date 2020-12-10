@@ -1,24 +1,28 @@
 <!DOCTYPE html>
-<html>
-<title>Elshoppen</title>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-<link rel="stylesheet"
-	href="https://fonts.googleapis.com/css?family=Roboto">
-<link rel="stylesheet"
-	href="https://fonts.googleapis.com/css?family=Montserrat">
-<link rel="stylesheet"
-	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-<style>
-	.w3-sidebar a {
-		font-family: "Roboto", sans-serif
-	}
-	body, h1, h2, h3, h4, h5, h6, 
-	.w3-wide {
-		font-family: "Montserrat", sans-serif;
-	}
-</style>
+<html lang="en">
+<head>
+	<title>Elshoppen</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	
+	<!--  External stylesheets used to beautify the page -->
+	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+	<link rel="stylesheet"
+		href="https://fonts.googleapis.com/css?family=Roboto">
+	<link rel="stylesheet"
+		href="https://fonts.googleapis.com/css?family=Montserrat">
+	<link rel="stylesheet"
+		href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<style>
+		.w3-sidebar a {
+			font-family: "Roboto", sans-serif
+		}
+		body, h1, h2, h3, h4, h5, h6, 
+		.w3-wide {
+			font-family: "Montserrat", sans-serif;
+		}
+	</style>
+</head>
 <body class="w3-content" style="max-width: 1200px">
 
 	<!-- Sidebar/menu -->
@@ -28,13 +32,15 @@
 			<i onclick="w3_close()"
 				class="fa fa-remove w3-hide-large w3-button w3-display-topright"></i>
 			<h3 class="w3-wide">
-				<b>Elshoppen LOGO</b>
+				<b>Elshoppen</b>
 			</h3>
 		</div>
 		<div class="w3-padding-64 w3-large w3-text-grey"
 			style="font-weight: bold">
-			<a href="#" class="w3-bar-item w3-button">Category 1</a> 
-			<a href="#" class="w3-bar-item w3-button">Category 2</a> 
+			<a href="#" class="w3-bar-item w3-button ">Register</a>
+			
+			<a href="#" class="w3-bar-item w3-button">Sign in</a> 
+			
 			<a onclick="myAccFunc()" href="javascript:void(0)" class="w3-button w3-block w3-white w3-left-align" id="myBtn">
 				Category 3 <i class="fa fa-caret-down"></i>
 			</a>
@@ -51,8 +57,7 @@
 				class="w3-bar-item w3-button">Category 5</a> <a href="#"
 				class="w3-bar-item w3-button">Category 6</a>
 		</div>
-		<a href="#footer" class="w3-bar-item w3-button w3-padding">Sign In</a>
-		<a href="#footer" class="w3-bar-item w3-button w3-padding">Register</a>
+		
 		<a href="#footer" class="w3-bar-item w3-button w3-padding">Contact</a>
 		<a href="javascript:void(0)" class="w3-bar-item w3-button w3-padding"
 			onclick="document.getElementById('newsletter').style.display='block'">Newsletter</a>
@@ -91,35 +96,36 @@
 
 		<!-- Image header -->
 		<div class="w3-display-container w3-container">
-			<img src="/images/jeans.jpg" alt="Jeans" style="width: 100%">
-			<div class="w3-display-topleft w3-text-white"
+			<img src="../images/shop-intro2.jpg" alt="Promote shopping" style="width: 100%">
+			<div class="w3-display-topright w3-text-white"
 				style="padding: 24px 48px">
-				<h1 class="w3-jumbo w3-hide-small">New arrivals</h1>
+				<h1 class="w3-jumbo w3-hide-small" style="background-color:rgba(182, 165, 204, 0.8)">New arrivals</h1>
+				<!-- I guess this is the text for small screens -->
 				<h1 class="w3-hide-large w3-hide-medium">New arrivals</h1>
-				<h1 class="w3-hide-small">COLLECTION 2016</h1>
+				<h1 class="w3-hide-small" style="background-color:rgba(158, 187, 188, 0.8);">COLLECTION 2020-2021</h1>
 				<p>
-					<a href="#jeans"
-						class="w3-button w3-black w3-padding-large w3-large">SHOP NOW</a>
+					<a href="#products"
+						class="w3-button w3-black w3-padding-large w3-large" >SHOP NOW</a>
 				</p>
 			</div>
 		</div>
 
-		<div class="w3-container w3-text-grey" id="jeans">
-			<p>8 items</p>
+		<div class="w3-container w3-text-grey" id="products"> <!-- id="jeans" -->
+			<p>Items</p>
 		</div>
 
 		<!-- Product grid -->
 		<div class="w3-row w3-grayscale">
 			<div class="w3-col l3 s6">
 				<div class="w3-container">
-					<img src="/images/jeans1.jpg" style="width: 100%">
+					<img src="/images/jeans1.jpg" style="width: 100%" alt="">
 					<p >
 						Ripped Skinny Jeans<br>
 						<b>$24.99</b>
 					</p>
 				</div>
 				<div class="w3-container">
-					<img src="/images/jeans2.jpg" style="width: 100%">
+					<img src="/images/jeans2.jpg" style="width: 100%" alt="">
 					<p>
 						Mega Ripped Jeans<br>
 						<b>$19.99</b>
@@ -130,7 +136,7 @@
 			<div class="w3-col l3 s6">
 				<div class="w3-container">
 					<div class="w3-display-container">
-						<img src="/images/jeans2.jpg" style="width: 100%"> <span
+						<img src="/images/jeans2.jpg" style="width: 100%" alt=""> <span
 							class="w3-tag w3-display-topleft">New</span>
 						<div class="w3-display-middle w3-display-hover">
 							<button class="w3-button w3-black">
@@ -144,7 +150,7 @@
 					</p>
 				</div>
 				<div class="w3-container">
-					<img src="/images/jeans3.jpg" style="width: 100%">
+					<img src="/images/jeans3.jpg" style="width: 100%" alt="">
 					<p>
 						Washed Skinny Jeans<br>
 						<b>$20.50</b>
@@ -154,7 +160,7 @@
 
 			<div class="w3-col l3 s6">
 				<div class="w3-container">
-					<img src="/images/jeans3.jpg" style="width: 100%">
+					<img src="/images/jeans3.jpg" style="width: 100%" alt="">
 					<p>
 						Washed Skinny Jeans<br>
 						<b>$20.50</b>
@@ -162,7 +168,7 @@
 				</div>
 				<div class="w3-container">
 					<div class="w3-display-container">
-						<img src="/images/jeans4.jpg" style="width: 100%"> <span
+						<img src="/images/jeans4.jpg" style="width: 100%" alt=""> <span
 							class="w3-tag w3-display-topleft">Sale</span>
 						<div class="w3-display-middle w3-display-hover">
 							<button class="w3-button w3-black">
@@ -179,14 +185,14 @@
 
 			<div class="w3-col l3 s6">
 				<div class="w3-container">
-					<img src="/images/jeans4.jpg" style="width: 100%">
+					<img src="/images/jeans4.jpg" style="width: 100%" alt="">
 					<p>
 						Vintage Skinny Jeans<br>
 						<b>$14.99</b>
 					</p>
 				</div>
 				<div class="w3-container">
-					<img src="/images/jeans1.jpg" style="width: 100%">
+					<img src="/images/jeans1.jpg" style="width: 100%" alt="">
 					<p>
 						Ripped Skinny Jeans<br>
 						<b>$24.99</b>
@@ -240,13 +246,7 @@
 						<a href="#">About us</a>
 					</p>
 					<p>
-						<a href="#">We're hiring</a>
-					</p>
-					<p>
 						<a href="#">Support</a>
-					</p>
-					<p>
-						<a href="#">Find store</a>
 					</p>
 					<p>
 						<a href="#">Shipment</a>
@@ -255,13 +255,15 @@
 						<a href="#">Payment</a>
 					</p>
 					<p>
-						<a href="#">Gift card</a>
-					</p>
-					<p>
 						<a href="#">Return</a>
 					</p>
 					<p>
 						<a href="#">Help</a>
+					</p>
+					<p>
+						<a href="https://www.w3schools.com/w3css/tryw3css_templates_clothing_store.htm" 
+							target="_blank">
+						Original template</a>
 					</p>
 				</div>
 
