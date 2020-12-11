@@ -24,6 +24,11 @@ const app = express();
 
 //Register ejs as .html. If we did not call this, we would need to name our views foo.ejs instead of foo.html.
 app.engine('.html', require('ejs').__express);
+// Set the root for the file path, to find other resources
+app.use('/' , express.static(path.join(__dirname ,'views')));
+app.use('/images' , express.static(path.join(__dirname ,'images')));
+
+
 app.set('view engine', 'ejs'); // Register the template engine
 app.set('views', './views'); // Specify the views directory
 
@@ -38,7 +43,7 @@ app.use(express.json());
 const storage = multer.diskStorage({
     destination: function(req, file, cb) {
     	// Remeber to create folder or it will crash
-        cb(null, './uploads/');
+        cb(null, './images/');
     },
 
     // By default, multer removes file extensions so let's add them back
@@ -321,6 +326,9 @@ app.put('/buy/:product', printRequest, function (req, res) {
 
 app.get('/search/:productName', printRequest, function (req, res) {
 	// Search all products that match the given product name
+	
+	console.log(req.body);
+	console.log(req.params);
 	
 	fs.readFile( __dirname + '/queries/search_product_name.sql','utf8', function(err, data) {
 		connectionDB.query(data, req.params.productName, function (err, result) {

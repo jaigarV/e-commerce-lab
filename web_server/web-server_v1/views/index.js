@@ -16,11 +16,11 @@ function init() {
 	document.getElementById("logout").addEventListener('click', logoutUser);
 	
 	// Top menu icons
-	document.getElementById("searchIcon").addEventListener('click', toggleSearchBar);
+	document.getElementById("searchIcon").addEventListener('click', () => {
+		toggleShowElement(document.getElementById("searchForm"));
+	});
 	document.getElementById("homeIcon").addEventListener('click', showHome);
 	document.getElementById("shoppingCartIcon").addEventListener('click', showShoppingCarts);
-	
-	
 	
 	// Check if there is a user logged
 	if(sessionStorage.getItem("userName") !== null){
@@ -30,8 +30,6 @@ function init() {
 		// Show user the accordion open as example
 		document.getElementById("login").click();
 	}
-	
-	
 
 }
 
@@ -53,10 +51,6 @@ function logoutUser(){
 	window.location.reload(false); 
 }
 
-function toggleSearchBar(){
-	toggleShowElement(document.getElementById("searchForm"));
-}
-
 function showHome(){
 	window.location.reload(true);
 }
@@ -64,8 +58,6 @@ function showHome(){
 function showShoppingCarts(){
 	// Make get request to server to retrieve the customer shopping cart web page
 }
-
-
 
 function printUser(){
 	document.getElementById("userMessage").innerHTML = "Welcome " + sessionStorage.getItem("userName") + "!";
@@ -77,13 +69,17 @@ function toggleUserMenu(){
 	}
 }
 
-
-
 function toggleShowElement(element){
 	if (element.className.indexOf("w3-hide") === -1) {
 		element.className += " w3-hide";
 	} else {
-		element.className = element.className.replace(" w3-hide", "");
+		// Check to see fit there are other classes or not
+		if(element.className.includes(" w3-hide")){
+			element.className = element.className.replace(" w3-hide", "");
+		} else {
+			element.className = element.className.replace("w3-hide", "");
+		}
+		
 	}
 }
 
