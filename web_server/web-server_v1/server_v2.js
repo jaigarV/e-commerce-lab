@@ -147,7 +147,7 @@ app.post('/customer/register', printRequest, function (req, res) {
 	});
 });
 
-app.put('/customer/login', printRequest, function (req, res) {
+app.post('/customer/login', printRequest, function (req, res) {
 	// Check customer is in database and retrieve its data and shopping carts
 	
 	// Test with predefined values
@@ -173,6 +173,11 @@ app.put('/customer/login', printRequest, function (req, res) {
 			}
 		});
 	});
+});
+
+app.post('/customer/shoppingCarts', printRequest, function (req, res) {
+	// Show the customer shopping carts
+	
 });
 
 app.post('/seller/register', printRequest, function (req, res) {
@@ -202,7 +207,7 @@ app.post('/seller/register', printRequest, function (req, res) {
 	});
 });
 
-app.put('/seller/login', printRequest, function (req, res) {
+app.post('/seller/login', printRequest, function (req, res) {
 	// Check seller is in database and retrieve its selling products
 	
 	let inserts = [req.body.OrganizationID, req.body.Password];
@@ -277,7 +282,7 @@ app.post('/product/update', printRequest, upload.single("upload_image"), functio
 	
 	let updates = req.body;
 	Object.keys(updates).forEach((key) => {
-		if(updates[key] == null || updates[key] == undefined || updates[key] === "") {
+		if(updates[key] == undefined || updates[key] == null || updates[key] === "") {
 			delete updates[key];
 		}
 	});
@@ -326,7 +331,7 @@ app.get('/search/:productName', printRequest, function (req, res) {
 		    console.log(result);
 		    
 		    // Update webpage information
-		    res.render('shark.html', {status: 'good'});
+		    res.render('index.html', {status: 'good'});
 		});
 	});
 });
