@@ -1,0 +1,1 @@
+SELECT * FROM ecommerce_database.PRODUCT LIMIT 8;
