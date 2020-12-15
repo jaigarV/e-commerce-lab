@@ -136,7 +136,7 @@ app.get('/test', printRequest, function (req, res) {
 	res.on("end", () => res.end());
 });
 
-app.post('/customer/register', printRequest, function (req, res) {
+app.post('/customer/register', printRequest, upload.none(), function (req, res) {
 	// Create new customer in database with req body data
 	
 	// Test with predefined values
@@ -145,10 +145,19 @@ app.post('/customer/register', printRequest, function (req, res) {
 //			Address:"Node js house USA", Age:1000};
 	
 	let newCustomer = req.body;
+	
+	// To handle optional properties
+	for (var prop in newCustomer) {
+	    if (Object.prototype.hasOwnProperty.call(newCustomer, prop)) {
+	        if(newCustomer[prop] === ''){
+	        	newCustomer[prop] = null;
+	        }
+	    }
+	}
 	// Seems that JSON has problems with numbers starting with 0, so we send them as String and convert them
 	newCustomer.IdentityNumber = parseInt(newCustomer.IdentityNumber, 10);
 	newCustomer.Phone = parseInt(newCustomer.Phone, 10);
-	console.log(newCustomer);
+//	console.log(newCustomer);
 	
 	fs.readFile( __dirname + '/queries/create_customers.sql','utf8', function(err, data) {
 		connectionDB.query(data, newCustomer)
@@ -162,20 +171,21 @@ app.post('/customer/register', printRequest, function (req, res) {
 				throw err;
 			}
 		}).on('result', (result) => {
-//			console.log(result);
+			console.log(result);
 		    // Send confirmation to client
 			res.status(201).send(newCustomer);
 		});
 	});
 });
 
-app.post('/customer/login', printRequest, function (req, res) {
+app.post('/customer/login', printRequest, upload.none(), function (req, res) {
 	// Check customer is in database and retrieve its data and shopping carts
 	
 	// Test with predefined values
 //	let testCustomer  = {IdentityNumber: 123456789, Password: "test"};
 //	let inserts = [testCustomer.IdentityNumber, testCustomer.Password];
 	
+//	console.log(req.body);
 	let inserts = [req.body.IdentityNumber, req.body.Password];
 	
 	fs.readFile( __dirname + '/queries/find_customers.sql','utf8', function(err, data) {
@@ -191,7 +201,7 @@ app.post('/customer/login', printRequest, function (req, res) {
 				} else {
 					res.status(404).send();
 				}
-				console.log(result);
+//				console.log(result);
 			}
 		});
 	});
@@ -202,10 +212,20 @@ app.post('/customer/shoppingCarts', printRequest, function (req, res) {
 	
 });
 
-app.post('/seller/register', printRequest, function (req, res) {
+app.post('/seller/register', printRequest, upload.none(), function (req, res) {
 	// Create new seller in database with req body data
 	
 	let newSeller = req.body;
+	
+	// To handle optional properties
+	for (var prop in newSeller) {
+	    if (Object.prototype.hasOwnProperty.call(newSeller, prop)) {
+	        if(newSeller[prop] === ''){
+	        	newSeller[prop] = null;
+	        }
+	    }
+	}
+	
 	// Seems that JSON has problems with numbers starting with 0, so we send them as String and convert them
 	newSeller.OrganizationID = parseInt(newSeller.OrganizationID, 10);
 	newSeller.Phone = parseInt(newSeller.Phone, 10);
@@ -222,14 +242,14 @@ app.post('/seller/register', printRequest, function (req, res) {
 				throw err;
 			}
 		}).on('result', (result) => {
-//			console.log(result);
+			console.log(result);
 		    // Send confirmation to client
 			res.status(201).send(newSeller);
 		});
 	});
 });
 
-app.post('/seller/login', printRequest, function (req, res) {
+app.post('/seller/login', printRequest, upload.none(), function (req, res) {
 	// Check seller is in database and retrieve its selling products
 	
 	let inserts = [req.body.OrganizationID, req.body.Password];
@@ -247,7 +267,7 @@ app.post('/seller/login', printRequest, function (req, res) {
 				} else {
 					res.status(404).send();
 				}
-				console.log(result);
+//				console.log(result);
 			}
 		});
 	});
