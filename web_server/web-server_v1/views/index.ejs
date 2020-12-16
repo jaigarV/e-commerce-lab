@@ -84,8 +84,9 @@
 			<p id="userMessage" class="w3-left">Products</p>
 			<p class="w3-right">
 				<!-- Symbols defined in Font Awesome (fa) v4.7, add w3-margin-right for good spacing between icons-->
+				<a id="briefcaseIcon" href="#" class="fa fa-briefcase w3-margin-right" style="text-decoration:none"></a>
 				<a id="shoppingCartIcon" href="#" class="fa fa-shopping-cart w3-margin-right" style="text-decoration:none"></a>
-				<a id="homeIcon" href="#" class="fa fa-home w3-margin-right" style="text-decoration:none"></a>
+				<a id="homeIcon" href="/" class="fa fa-home w3-margin-right" style="text-decoration:none"></a>
 				<a id="searchIcon" href="#" class="fa fa-search w3-margin-right" style="text-decoration:none"></a>
 				
 				<!-- Original: <i class="fa fa-shopping-cart w3-margin-right"></i> -->
@@ -119,7 +120,11 @@
 		</div>
 
 		<div class="w3-container w3-text-grey" id="products"> <!-- id="jeans" -->
+		<% if (products.length == 0) { %>
+			<p class="w3-large" >No items found</p>
+		<% } else { %>
 			<p>Items</p>
+		<% } %>
 		</div>
 
 		<!-- Product grid -->

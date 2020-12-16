@@ -19,7 +19,6 @@ function init() {
 	document.getElementById("searchIcon").addEventListener('click', () => {
 		toggleShowElement(document.getElementById("searchForm"));
 	});
-	document.getElementById("homeIcon").addEventListener('click', showHome);
 	document.getElementById("shoppingCartIcon").addEventListener('click', showShoppingCarts);
 	
 	document.getElementById("loginCustomerForm").addEventListener('submit', loginCustomerRequest);
@@ -56,10 +55,6 @@ function toggleAccordion(event) {
 function logoutUser(){
 	sessionStorage.clear();
 	window.location.reload(false); 
-}
-
-function showHome(){
-	window.location.reload(true);
 }
 
 function showShoppingCarts(){
@@ -170,8 +165,8 @@ function registerCustomerRequest(event){
 	.then(result => {
 		if(result.length !== 0){
 			sessionStorage.clear();
-			sessionStorage.setItem("userID", result[0].IdentityNumber);
-			sessionStorage.setItem("userName", result[0].Name);
+			sessionStorage.setItem("userID", result.IdentityNumber);
+			sessionStorage.setItem("userName", result.Name);
 			sessionStorage.setItem("userType", "customer");
 			window.location.reload(false);
 			// Add icons or other UI elements for use by customers
@@ -205,8 +200,8 @@ function registerSellerRequest(event){
 	.then(result => {
 		if(result.length !== 0){
 			sessionStorage.clear();
-			sessionStorage.setItem("userID", result[0].OrganizationID);
-			sessionStorage.setItem("userName", result[0].Name);
+			sessionStorage.setItem("userID", result.OrganizationID);
+			sessionStorage.setItem("userName", result.Name);
 			sessionStorage.setItem("userType", "seller");
 			window.location.reload(false);
 			// Add icons or other UI elements for use by customers

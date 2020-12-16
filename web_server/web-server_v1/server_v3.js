@@ -113,7 +113,7 @@ app.get('/', printRequest, function (req, res) {
 					});
 					res.status(200).render('index',{products:result});
 				} else {
-					res.status(404).render('index',result);
+					res.status(404).render('index',{products:result});
 				}
 //				console.log(result);
 			}
@@ -171,7 +171,7 @@ app.post('/customer/register', printRequest, upload.none(), function (req, res) 
 				throw err;
 			}
 		}).on('result', (result) => {
-			console.log(result);
+			console.log(newCustomer);
 		    // Send confirmation to client
 			res.status(201).send(newCustomer);
 		});
@@ -207,7 +207,7 @@ app.post('/customer/login', printRequest, upload.none(), function (req, res) {
 	});
 });
 
-app.post('/customer/shoppingCarts', printRequest, function (req, res) {
+app.get('/customer/shoppingCarts', printRequest, function (req, res) {
 	// Show the customer shopping carts
 	
 });
@@ -380,36 +380,33 @@ app.put('/buy/:product', printRequest, function (req, res) {
 	});
 });
 
-app.get('/search/:productName', printRequest, function (req, res) {
+app.get('/search', printRequest, function (req, res) {
 	// Search all products that match the given product name
 	
-	console.log(req.body);
-	console.log(req.params);
+	let searchParam = req.query.searchWord;
+	console.log("Performing a search with: " + searchParam);
+	let searchSql = '%' + searchParam + '%';
 	
 	fs.readFile( __dirname + '/queries/search_product_name.sql','utf8', function(err, data) {
-		connectionDB.query(data, req.params.productName, function (err, result) {
+//		let sql = mysql.format(data, [updates, id]);
+//		console.log(sql);
+		connectionDB.query(data, searchSql, function (err, result) {
 			if (err){
-				console.error(err.stack);
+				res.status(500).send();
 				throw err;
 			}
-		    console.log(result);
-		    
-		    // Update webpage information
-		    res.render('index.html', {status: 'good'});
-		});
-	});
-});
-
-app.get('test/query', printRequest, function (req, res) {
-	// Specify encoding "utf8" to retrieve string, instead of the raw buffer returned otherwise.
-	fs.readFile( __dirname + '/queries/find_customers.sql','utf8', function(err, data) {
-		connectionDB.query(data, function (err, result, fields) {
-			if (err){
-				console.error(err.stack);
-				throw err;
+			// Update webpage information
+			if(result.lenght !== 0){
+				result.forEach(function (item, index) {
+					if(item.DescriptionImage != null){
+						item.DescriptionImage = 
+							Buffer.from(item.DescriptionImage).toString('base64');
+					}
+				});
+				res.status(200).render('index',{products:result});
+			} else {
+				res.status(404).render('index',{products:result});
 			}
-		    console.log(result);
-			res.send(result);
 		});
 	});
 });

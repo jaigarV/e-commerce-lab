@@ -1,1 +1,1 @@
-SELECT * FROM ecommerce_database.PRODUCT WHERE PRODUCT.Name LIKE '%?%';
+SELECT * FROM ecommerce_database.PRODUCT WHERE PRODUCT.Name LIKE ?;
