@@ -142,9 +142,11 @@
 					 	<img src="../images/default_product.png" style="width:95%; height:100%" alt="">
 				 	<% } %>
 				 		<div class="w3-display-middle w3-display-hover">
-							<button id="<%= products[i].ProductID%>" class="w3-button w3-black">
-								Buy now <i class="fa fa-shopping-cart"></i>
-							</button>
+					 		<form class="w3-display-middle w3-display-hover">
+								<button id="<%= products[i].ProductID%>" formaction="/product/<%= products[i].ProductID%>" 
+								class="w3-button w3-black">Buy now <i class="fa fa-shopping-cart"></i>
+								</button>
+							</form>
 						</div>
 					</div>
 			 		<p >

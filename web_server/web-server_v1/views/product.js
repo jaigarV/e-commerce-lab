@@ -22,6 +22,8 @@ function init() {
 	document.getElementById("registerCustomerForm").addEventListener('submit', registerCustomerRequest);
 	document.getElementById("registerSellerForm").addEventListener('submit', registerSellerRequest);
 	
+	document.getElementById("addToCartButton").addEventListener('click', addToCartRequest);
+	
 	document.getElementById("updateProductForm").addEventListener('submit', updateProductRequest);
 	
 	// Check if there is a user logged
@@ -91,7 +93,6 @@ function statusRegister(response) {
 }
 
 
-
 function loginCustomerRequest(event){
 	// To stop the default action of the form
 	event.preventDefault();
@@ -107,7 +108,7 @@ function loginCustomerRequest(event){
 //	let loginForm = new URLSearchParams(new FormData(loginForm));
 	
 	// Send form data to server
-	fetch('customer/login', {
+	fetch('/customer/login', {
 		method: 'POST',
 		body: loginForm 
 	})
@@ -137,7 +138,7 @@ function loginSellerRequest(event){
 	let loginForm = new FormData(document.getElementById("loginSellerForm"));
 	
 	// Send form data to server
-	fetch('seller/login', {
+	fetch('/seller/login', {
 		method: 'POST',
 		body: loginForm 
 	})
@@ -167,7 +168,7 @@ function registerCustomerRequest(event){
 	let loginForm = new FormData(document.getElementById("registerCustomerForm"));
 	
 	// Send form data to server
-	fetch('customer/register', {
+	fetch('/customer/register', {
 		method: 'POST',
 		body: loginForm 
 	})
@@ -202,7 +203,7 @@ function registerSellerRequest(event){
 	let loginForm = new FormData(document.getElementById("registerSellerForm"));
 	
 	// Send form data to server
-	fetch('seller/register', {
+	fetch('/seller/register', {
 		method: 'POST',
 		body: loginForm 
 	})
@@ -225,6 +226,39 @@ function registerSellerRequest(event){
 			document.getElementById('errorSellerRegister').innerHTML = "Duplicate entry, you are already registered";
 		} else {
 			console.log('Seller register request failed', error);
+		}
+	});
+}
+
+function addToCartRequest(){
+	// Remeber to get the value property when dealing with html elements
+	let productID = document.getElementById("ProductID").value;
+	let customerID = sessionStorage.getItem("userID");
+	 console.log("Send data -> ProductID:" + productID + ", userID:" + customerID);
+	// Send form data to server
+	fetch('/customer/' + customerID + '/' + productID, {
+		method: 'PUT'
+	})
+	.then(status)
+	.then(response => response.json())
+	.then(result => {
+		if(result.length !== 0){
+			console.log(result);
+			document.getElementById('"addProductShopcartMessage"')
+			.innerHTML = "The product has been added to shopping cart correctly";
+//			sessionStorage.setItem("userID", result[0].IdentityNumber);
+//			window.location.reload(false);
+		} else {
+			document.getElementById('"addProductShopcartMessage"')
+				.innerHTML = "The add product to shopping cart request has incorrect data";
+		}
+	})
+	.catch(function(error) {
+//		console.log("The error msg is:" + error.message);
+		if(error.message === "400"){
+			document.getElementById('addProductShopcartMessage').innerHTML = "Duplicate entry, product already in shopping cart";
+		} else {
+			console.log('Add product to shopping cart request failed', error);
 		}
 	});
 }

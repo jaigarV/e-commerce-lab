@@ -212,6 +212,93 @@ app.get('/customer/shoppingCarts', printRequest, function (req, res) {
 	
 });
 
+app.put('/customer/:customerId/:productId', printRequest, function (req, res) {
+	// Add product to customer shopping cart
+	let customer = req.params.customerId;
+	let product = req.params.productId;
+	
+	fs.readFile( __dirname + '/queries/find_customer_shopcart.sql','utf8', function(err, data) {
+		let searchCartQuery = data;
+		fs.readFile( __dirname + '/queries/create_customer_shopcart.sql','utf8', function(err, data) {
+			let createCartQuery = data;
+			fs.readFile( __dirname + '/queries/add_product_shopcart.sql','utf8', function(err, data) {
+				let addProductToCartQuery = data;
+				connectionDB.beginTransaction(function(err) {
+					if (err) { throw err; }
+					// Find if customer has a shopping cart to add the product
+					let shoppingCart;
+					connectionDB.query(searchCartQuery, customer, function (error, result, fields) {
+						if (error) {
+							return connectionDB.rollback(function() {
+								throw error;
+							});
+						} else {
+							// result es un array
+							shoppingCart = result[0].Shopping_cartID;
+							console.log("Shopping cart found: "); 
+							console.log(shoppingCart);
+							// If customer has no shopping cart, create one
+							if (shoppingCart.length == 0){
+								connectionDB.query(createCartQuery, customer, function (error, result, fields) {
+									if (error) {
+										return connectionDB.rollback(function() {
+											throw error;
+										});
+									} else {
+										shoppingCart = result[0].Shopping_cartID;
+										// addProductToCart(shoppinCart, product);
+										connectionDB.query(addProductToCartQuery, [shoppingCart, product], function (error, result, fields) {
+											if (error) {
+												return connectionDB.rollback(function() {
+													throw error;
+												});
+											} else {
+												console.log(result);
+											    // Send confirmation to client
+												res.status(200).send(result);
+											}
+										});
+										
+									}
+								});
+							} else {
+								// addProductToCart(shoppinCart, product);
+								connectionDB.query(addProductToCartQuery, [shoppingCart, product], function (error, result, fields) {
+									if (error) {
+										return connectionDB.rollback(function() {
+											throw error;
+										});
+									} else {
+										console.log(result);
+									    // Send confirmation to client
+										res.status(200).send(result);
+									}
+								});
+							}
+						}
+					}); // And more queries ...
+					
+					connectionDB.commit(function(err) {
+						if (err) {
+							return connectionDB.rollback(function() {
+								throw err;
+							});
+						}
+						console.log('Successfull transaction to add product into shopping cart!');
+					});
+				}).catch(function(error) {
+//					console.log("The error msg is:" + error.message);
+					if(error.code === 'ER_DUP_ENTRY'){
+						res.status(400).send();
+					} else {
+						throw error;
+					}
+				});
+			});
+		});
+	});
+});
+
 app.post('/seller/register', printRequest, upload.none(), function (req, res) {
 	// Create new seller in database with req body data
 	
@@ -418,21 +505,21 @@ app.put('/product', printRequest, upload.single("upload_image"), function (req, 
 	});
 });
 
-app.put('/buy/:product', printRequest, function (req, res) {
+app.put('/buy/:shoppingCart', printRequest, function (req, res) {
 	// Buy product with specified productID = decrease product quantity by 1
-	connection.beginTransaction(function(err) {
+	connectionDB.beginTransaction(function(err) {
 		if (err) { throw err; }
-		connection.query(data, function (error, results, fields) {
+		connectionDB.query(data, function (error, result, fields) {
 			if (error) {
-				return connection.rollback(function() {
+				return connectionDB.rollback(function() {
 					throw error;
 				});
 			}
 		}); // And more queries ...
 		
-		connection.commit(function(err) {
+		connectionDB.commit(function(err) {
 			if (err) {
-				return connection.rollback(function() {
+				return connectionDB.rollback(function() {
 					throw err;
 				});
 			}

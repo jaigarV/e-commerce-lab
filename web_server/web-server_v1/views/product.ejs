@@ -113,7 +113,6 @@
 		<div class="w3-container w3-text-grey" id="products"> <!-- id="jeans" -->
 			<p class="w3-large" >Item description</p>
 		</div>
-		<p class="w3-hide">
 		
 		<div class="w3-row-padding" style="margin:0 -16px">
 			<table class="w3-table w3-striped w3-white">
@@ -139,7 +138,8 @@
 	          	</tr>
 			</table>
 		</div>
-
+		<br>
+		<p id="addProductShopcartMessage" class="w3-amber w3-text-black w3-large"></p>
 		<!-- Subscribe section -->
 		<div class="w3-container w3-black w3-padding-32">
 			<h1>Subscribe</h1>
@@ -313,8 +313,8 @@
 				<h2 class="w3-wide">Update product</h2>
 				<p>Introduce the product data to be changed</p>
 				  	<form id="updateProductForm" action="product" method="post">
-				  		<input class="w3-input w3-border w3-hide" type="number" name="ProductID" required
-							value="<%= product[0].ProductID%>">
+				  		<input id="ProductID" class="w3-input w3-border w3-hide" type="number" 
+				  		name="ProductID" required value="<%= product[0].ProductID%>">
 				  		<input class="w3-input w3-border" type="text" name="Name"
 							placeholder="Enter the name of the product">
 						<br>

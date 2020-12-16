@@ -1,0 +1,1 @@
+INSERT INTO ecommerce_database.`SHOPPING CART` (`Buyer`) VALUES (?);
