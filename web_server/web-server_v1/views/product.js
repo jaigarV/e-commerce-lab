@@ -1,7 +1,3 @@
-/**
- * http://usejsdoc.org/
- */
-
 window.onload = init;
 
 // Do when page finish to load (don't use document.write() or it will replace whole page)
@@ -25,6 +21,8 @@ function init() {
 	
 	document.getElementById("registerCustomerForm").addEventListener('submit', registerCustomerRequest);
 	document.getElementById("registerSellerForm").addEventListener('submit', registerSellerRequest);
+	
+	document.getElementById("updateProductForm").addEventListener('submit', updateProductRequest);
 	
 	// Check if there is a user logged
 	if(sessionStorage.getItem("userName") !== null){
@@ -231,6 +229,35 @@ function registerSellerRequest(event){
 	});
 }
 
+function updateProductRequest(event){
+	// To stop the default action of the form
+	event.preventDefault();
+
+	// This will be sent as multipart/form-data
+	let loginForm = new FormData(document.getElementById("updateProductForm"));
+//	loginForm.append("ProductID", sessionStorage.getItem(""));
+	
+	// Send form data to server
+	fetch('/product', {
+		method: 'PUT',
+		body: loginForm 
+	})
+	.then(status)
+	.then(response => response.json())
+	.then(result => {
+		if(result.length !== 0){
+			window.location.reload(true);
+			// Add icons or other UI elements for use by customers
+		} else {
+			document.getElementById('errorUpdateProduct').innerHTML = "The product was not updated, error data input?";
+		}
+	})
+	.catch(function(error) {
+//		console.log("The error msg is:" + error.message);
+		console.log('New product request failed', error);
+		
+	});
+}
 
 function printUser(){
 	document.getElementById("userMessage").innerHTML = "Welcome " + sessionStorage.getItem("userName") + "!";
@@ -268,29 +295,3 @@ function toggleShowElement(element){
 	}
 }
 
-// Legacy code as reference
-/*
-// Accordion to show the categories by adding or removing the w3-show class attribute
-function myAccFunc() {
-	var x = document.getElementById("demoAcc");
-	if (x.className.indexOf("w3-show") == -1) {
-		x.className += " w3-show";
-	} else {
-		x.className = x.className.replace(" w3-show", "");
-	}
-}
-
-// Click on the myBtn link on page load to open the accordion for demo purposes
-document.getElementById("myBtn").click();
-
-// Open and close sidebar withou using classes
-function w3_open() {
-	document.getElementById("mySidebar").style.display = "block";
-	document.getElementById("myOverlay").style.display = "block";
-}
-
-function w3_close() {
-	document.getElementById("mySidebar").style.display = "none";
-	document.getElementById("myOverlay").style.display = "none";
-}
-*/

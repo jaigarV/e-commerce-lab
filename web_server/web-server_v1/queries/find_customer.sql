@@ -1,0 +1,1 @@
+SELECT * FROM ecommerce_database.CUSTOMER WHERE CUSTOMER.IdentityNumber = ? AND CUSTOMER.Password = ?;

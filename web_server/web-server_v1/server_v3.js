@@ -97,7 +97,7 @@ connectionDB.connect(function(err) {
 app.get('/', printRequest, function (req, res) {
 	
 	// Find the first products in database an show them in home page
-	fs.readFile( __dirname + '/queries/first_products.sql','utf8', function(err, data) {
+	fs.readFile( __dirname + '/queries/last_products.sql','utf8', function(err, data) {
 		connectionDB.query(data, function (err, result) {
 			if (err){
 				res.status(500).send();
@@ -188,7 +188,7 @@ app.post('/customer/login', printRequest, upload.none(), function (req, res) {
 //	console.log(req.body);
 	let inserts = [req.body.IdentityNumber, req.body.Password];
 	
-	fs.readFile( __dirname + '/queries/find_customers.sql','utf8', function(err, data) {
+	fs.readFile( __dirname + '/queries/find_customer.sql','utf8', function(err, data) {
 		let sql = mysql.format(data, inserts);
 //		console.log(sql);
 		connectionDB.query(sql, function (err, result) {
@@ -273,6 +273,67 @@ app.post('/seller/login', printRequest, upload.none(), function (req, res) {
 	});
 });
 
+app.get('/seller/:sellerId/products', printRequest, function (req, res) {
+	// Check seller is in database and retrieve its selling products
+	
+	let seller = req.params.sellerId;
+	console.log(seller);
+	
+	fs.readFile( __dirname + '/queries/find_seller_products.sql','utf8', function(err, data) {
+		connectionDB.query(data, seller, function (err, result) {
+			if (err){
+				if(err.code === 'ER_EMPTY_QUERY'){
+					res.status(404).send();
+				} else {
+					res.status(500).send();
+					throw err;
+				}
+			}
+			// Update webpage information
+			if(result.lenght !== 0){
+				result.forEach(function (item, index) {
+					if(item.DescriptionImage != null){
+						item.DescriptionImage = 
+							Buffer.from(item.DescriptionImage).toString('base64');
+					}
+				});
+				res.status(200).render('seller',{products:result});
+			} else {
+				res.status(404).render('seller',{products:result});
+			}
+		});
+	});
+});
+
+app.get('/product/:productId', printRequest, function (req, res) {
+	
+	let product = req.params.productId;
+	fs.readFile( __dirname + '/queries/find_product.sql','utf8', function(err, data) {
+		connectionDB.query(data, product, function (err, result) {
+			if (err){
+				if(err.code === 'ER_EMPTY_QUERY'){
+					res.status(404).send();
+				} else {
+					res.status(500).send();
+					throw err;
+				}
+			}
+			// Update webpage information
+			if(result.lenght !== 0){
+				result.forEach(function (item, index) {
+					if(item.DescriptionImage != null){
+						item.DescriptionImage = 
+							Buffer.from(item.DescriptionImage).toString('base64');
+					}
+				});
+				res.status(200).render('product',{product:result});
+			} else {
+				res.status(404).render('product',{product:result});
+			}
+		});
+	});
+});
+
 app.post('/product', printRequest, upload.single("upload_image"), function (req, res) {
 	// Create new product in database with req body data
 	
@@ -319,7 +380,7 @@ app.post('/product', printRequest, upload.single("upload_image"), function (req,
 	});
 });
 
-app.post('/product/update', printRequest, upload.single("upload_image"), function (req, res) {
+app.put('/product', printRequest, upload.single("upload_image"), function (req, res) {
 	// Update product in database with req body data
 	
 	let updates = req.body;

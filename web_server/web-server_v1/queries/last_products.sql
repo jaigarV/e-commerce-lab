@@ -1,0 +1,1 @@
+SELECT * FROM ecommerce_database.PRODUCT ORDER BY PRODUCT.ProductID DESC LIMIT 8;
