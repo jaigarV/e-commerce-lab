@@ -239,24 +239,30 @@ function addToCartRequest(){
 	fetch('/customer/' + customerID + '/' + productID, {
 		method: 'PUT'
 	})
-	.then(status)
+	.then(statusRegister)
 	.then(response => response.json())
 	.then(result => {
 		if(result.length !== 0){
 			console.log(result);
-			document.getElementById('"addProductShopcartMessage"')
-			.innerHTML = "The product has been added to shopping cart correctly";
+			let userMsg = document.getElementById('"addProductShopcartMessage"');
+			userMsg.innerHTML = "The product has been added to shopping cart correctly";
+			let userMsgError = document.getElementById('"addProductShopcartErrorMessage"');
+			userMsgError.innerHTML="";
 //			sessionStorage.setItem("userID", result[0].IdentityNumber);
 //			window.location.reload(false);
 		} else {
-			document.getElementById('"addProductShopcartMessage"')
+			document.getElementById('"addProductShopcartErrorMessage"')
 				.innerHTML = "The add product to shopping cart request has incorrect data";
+			let userMsg = document.getElementById('"addProductShopcartMessage"');
+			userMsg.innerHTML = "";
 		}
 	})
 	.catch(function(error) {
 //		console.log("The error msg is:" + error.message);
 		if(error.message === "400"){
-			document.getElementById('addProductShopcartMessage').innerHTML = "Duplicate entry, product already in shopping cart";
+			document.getElementById('addProductShopcartErrorMessage').innerHTML = "Duplicate entry, product already in shopping cart";
+			let userMsg = document.getElementById('"addProductShopcartMessage"');
+			userMsg.innerHTML = "";
 		} else {
 			console.log('Add product to shopping cart request failed', error);
 		}

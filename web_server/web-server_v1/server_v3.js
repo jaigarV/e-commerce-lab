@@ -235,8 +235,7 @@ app.put('/customer/:customerId/:productId', printRequest, function (req, res) {
 						} else {
 							// result es un array
 							shoppingCart = result[0].Shopping_cartID;
-							console.log("Shopping cart found: "); 
-							console.log(shoppingCart);
+							console.log("Shopping cart found: " + shoppingCart); 
 							// If customer has no shopping cart, create one
 							if (shoppingCart.length == 0){
 								connectionDB.query(createCartQuery, customer, function (error, result, fields) {
@@ -250,10 +249,23 @@ app.put('/customer/:customerId/:productId', printRequest, function (req, res) {
 										connectionDB.query(addProductToCartQuery, [shoppingCart, product], function (error, result, fields) {
 											if (error) {
 												return connectionDB.rollback(function() {
-													throw error;
+													if(error.code === 'ER_DUP_ENTRY'){
+														res.status(400).send();
+													} else {
+														throw error;
+													}
 												});
 											} else {
 												console.log(result);
+												// End transaction with commit
+												connectionDB.commit(function(err) {
+													if (err) {
+														return connectionDB.rollback(function() {
+															throw err;
+														});
+													}
+													console.log('Successfull transaction to add product into shopping cart!');
+												});
 											    // Send confirmation to client
 												res.status(200).send(result);
 											}
@@ -266,10 +278,23 @@ app.put('/customer/:customerId/:productId', printRequest, function (req, res) {
 								connectionDB.query(addProductToCartQuery, [shoppingCart, product], function (error, result, fields) {
 									if (error) {
 										return connectionDB.rollback(function() {
-											throw error;
+											if(error.code === 'ER_DUP_ENTRY'){
+												res.status(400).send();
+											} else {
+												throw error;
+											}
 										});
 									} else {
 										console.log(result);
+										// End transaction with commit
+										connectionDB.commit(function(err) {
+											if (err) {
+												return connectionDB.rollback(function() {
+													throw err;
+												});
+											}
+											console.log('Successfull transaction to add product into shopping cart!');
+										});
 									    // Send confirmation to client
 										res.status(200).send(result);
 									}
@@ -278,21 +303,6 @@ app.put('/customer/:customerId/:productId', printRequest, function (req, res) {
 						}
 					}); // And more queries ...
 					
-					connectionDB.commit(function(err) {
-						if (err) {
-							return connectionDB.rollback(function() {
-								throw err;
-							});
-						}
-						console.log('Successfull transaction to add product into shopping cart!');
-					});
-				}).catch(function(error) {
-//					console.log("The error msg is:" + error.message);
-					if(error.code === 'ER_DUP_ENTRY'){
-						res.status(400).send();
-					} else {
-						throw error;
-					}
 				});
 			});
 		});
