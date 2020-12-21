@@ -78,7 +78,8 @@ CREATE TABLE IF NOT EXISTS `ecommerce_database`.`PRODUCT` (
 CREATE TABLE IF NOT EXISTS `ecommerce_database`.`SHOPPING CART` (
   `Shopping_cartID` INT NOT NULL AUTO_INCREMENT,
   `Buyer` INT NULL,
-  `Bought` BOOLEAN DEFAULT false, 
+  `Bought` BOOLEAN DEFAULT false,
+  `Modified` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`Shopping_cartID`),
   INDEX `Customer_idx` (`Buyer` ASC) VISIBLE,
   CONSTRAINT `fk_CUSTOMER`
@@ -95,7 +96,7 @@ CREATE TABLE IF NOT EXISTS `ecommerce_database`.`COMMENT` (
   `Author` INT NOT NULL,
   `Rating` INT NULL,
   `Text` MEDIUMTEXT NOT NULL,
-  `Date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE NOW(),
+  `WritingDate` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE NOW(),
   `Product` INT NOT NULL,
   PRIMARY KEY (`Author`, `Product`),
   INDEX `fk_COMMENT_PRODUCT_idx` (`Product` ASC) VISIBLE,
@@ -109,10 +110,11 @@ CREATE TABLE IF NOT EXISTS `ecommerce_database`.`COMMENT` (
 -- -----------------------------------------------------
 -- Table `ecommerce_database`.`ORDER`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `ecommerce_database`.`ORDER` (
+CREATE TABLE IF NOT EXISTS `ecommerce_database`.`PRODUCTS IN CART` (
   `Shopping_cartID` INT NOT NULL,
   `ProductID` INT NOT NULL,
   `ProductPriceThen` DECIMAL NULL,
+  `Quantity` INT NOT NULL,
   PRIMARY KEY (`Shopping_cartID`, `ProductID`),
   INDEX `fk_SHOPPING CART_has_PRODUCT_PRODUCT1_idx` (`ProductID` ASC) VISIBLE,
   INDEX `fk_SHOPPING CART_has_PRODUCT_SHOPPING CART1_idx` (`Shopping_cartID` ASC) VISIBLE,
@@ -134,7 +136,7 @@ USE `ecommerce_database`;
 
 DELIMITER $$
 USE `ecommerce_database`$$
-CREATE DEFINER = CURRENT_USER TRIGGER `ecommerce_database`.`ORDER_STORE_PRICE` BEFORE INSERT ON `ORDER` FOR EACH ROW
+CREATE DEFINER = CURRENT_USER TRIGGER `ecommerce_database`.`ORDER_STORE_PRICE` BEFORE INSERT ON `PRODUCTS IN CART` FOR EACH ROW
 BEGIN
 	IF NEW.`ProductPriceThen` IS NULL THEN
 		SET NEW.`ProductPriceThen` = 
