@@ -98,6 +98,10 @@ app.get('/', printRequest, function (req, res) {
 	
 	// Find the first products in database an show them in home page
 	fs.readFile( __dirname + '/queries/last_products.sql','utf8', function(err, data) {
+		if(err){
+			res.status(500).send();
+			throw err;
+		}
 		connectionDB.query(data, function (err, result) {
 			if (err){
 				res.status(500).send();
@@ -118,9 +122,6 @@ app.get('/', printRequest, function (req, res) {
 //				console.log(result);
 			}
 		});
-		if(err){
-			throw err;
-		}
 	});
 
 });
@@ -207,9 +208,62 @@ app.post('/customer/login', printRequest, upload.none(), function (req, res) {
 	});
 });
 
-app.get('/customer/shoppingCarts', printRequest, function (req, res) {
+app.get('/customer/:customerId/shoppingCarts', printRequest, function (req, res) {
 	// Show the customer shopping carts
-	
+	let customer = req.params.customerId;
+	let shopCarts = [];
+	fs.readFile( __dirname + '/queries/find_all_customer_shopcart.sql','utf8', function(err, data) {
+		if(err){
+			res.status(500).send();
+			throw err;
+		}
+		let shopcartsQuery = data;
+		fs.readFile( __dirname + '/queries/find_products_shopcart.sql','utf8', function(err, data) {
+			if(err){
+				res.status(500).send();
+				throw err;
+			}
+			let productsInShopcartsQuery = data;
+			connectionDB.query(shopcartsQuery, customer, function (err, result) {
+				if (err){
+					res.status(500).send();
+					throw err;
+				} else {
+					console.log(result);
+					if(result.lenght !== 0){
+						result.forEach(function (item, index) {
+							let shopCart = item.Shopping_cartID;
+							shopCart.products = [];
+							connectionDB.query(productsInShopcartsQuery, shopCart, function (err, result) {
+								if (err){
+									res.status(500).send();
+									throw err;
+								} else {
+									if(result.lenght !== 0){
+										result.forEach(function (item, index) {
+											// Add product to shopping cart object array
+											if(item.DescriptionImage != null){
+												item.DescriptionImage = 
+													Buffer.from(item.DescriptionImage).toString('base64');
+											}
+											shopCart.products.push(item);
+										});
+										shopCarts.push(shopCart);
+									}
+								}
+							});
+
+//							console.log(item.DescriptionImage);
+						});
+						res.status(200).render('index',{products:result});
+					} else {
+						res.status(404).render('index',{products:result});
+					}
+//					console.log(result);
+				}
+			});
+		});
+	});
 });
 
 app.put('/customer/:customerId/:productId', printRequest, function (req, res) {

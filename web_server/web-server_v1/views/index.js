@@ -65,6 +65,10 @@ function logoutUser(){
 
 function showShoppingCarts(){
 	// Make get request to server to retrieve the customer shopping cart web page
+	let customerId = sessionStorage.getItem("userID");
+	console.log("The customer Id is: " + customerId);
+	// The address should be /customer/:customerId/shoppingCarts
+	window.location.href = '/customer/' + customerId + '/shoppingCarts';
 }
 
 function showSellerProducts(){
