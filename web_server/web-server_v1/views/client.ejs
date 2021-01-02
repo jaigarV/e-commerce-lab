@@ -1,42 +1,148 @@
-<div class="w3-row-padding" style="margin:0 -16px">
-	<div class="w3-twothird">
-	  <h5>Feeds</h5>
-	  <table class="w3-table w3-striped w3-white">
-	    <tr>
-	      <td><i class="fa fa-user w3-text-blue w3-large"></i></td>
-	      <td>New record, over 90 views.</td>
-	      <td><i>10 mins</i></td>
-	    </tr>
-	    <tr>
-	      <td><i class="fa fa-bell w3-text-red w3-large"></i></td>
-	      <td>Database error.</td>
-	      <td><i>15 mins</i></td>
-	    </tr>
-	    <tr>
-	      <td><i class="fa fa-users w3-text-yellow w3-large"></i></td>
-	      <td>New record, over 40 users.</td>
-	      <td><i>17 mins</i></td>
-	    </tr>
-	    <tr>
-	      <td><i class="fa fa-comment w3-text-red w3-large"></i></td>
-	      <td>New comments.</td>
-	      <td><i>25 mins</i></td>
-	    </tr>
-	    <tr>
-	      <td><i class="fa fa-bookmark w3-text-blue w3-large"></i></td>
-	      <td>Check transactions.</td>
-	      <td><i>28 mins</i></td>
-	    </tr>
-	    <tr>
-	      <td><i class="fa fa-laptop w3-text-red w3-large"></i></td>
-	      <td>CPU overload.</td>
-	      <td><i>35 mins</i></td>
-	    </tr>
-	    <tr>
-	      <td><i class="fa fa-share-alt w3-text-green w3-large"></i></td>
-	      <td>New shares.</td>
-	      <td><i>39 mins</i></td>
-	    </tr>
-	  </table>
-	</div>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+  <!-- Head -->
+  <%- include('./partials/head'); %>
+  
+  <body class="w3-content" style="max-width: 1400px">
+    <!-- Sidebar/menu -->
+    <nav class="w3-sidebar w3-bar-block w3-white w3-collapse w3-top" style="z-index: 3; width: 250px" 
+      id="mySidebar">
+      <div class="w3-container w3-display-container w3-padding-16">
+        <i onclick="w3_close()"
+          class="fa fa-remove w3-hide-large w3-button w3-display-topright"></i>
+        <h3 class="w3-wide">
+          <b>Elshoppen</b>
+        </h3>
+      </div>
+      <div class="w3-padding-64 w3-large w3-text-grey" style="font-weight: bold">
+        <a id="login" href="#" class="w3-bar-item w3-button w3-block w3-white w3-left-align acc-left-menu user-logged">
+          Log in <i class="fa fa-caret-down"></i></a> 
+        <div id="loginAcc"
+          class="w3-bar-block w3-hide w3-padding-large w3-medium">
+          <a href="#" onclick="document.getElementById('loginCustomerModal').style.display='block'"
+            class="w3-bar-item w3-button w3-light-grey">Customer</a>
+          <a href="#" onclick="document.getElementById('loginSellerModal').style.display='block'" 
+            class="w3-bar-item w3-button">Seller</a> 
+        </div>
+        
+        <a id="register" href="#" class="w3-bar-item w3-button w3-block w3-white w3-left-align acc-left-menu user-logged">
+          Register <i class="fa fa-caret-down"></i></a>
+        <div id="registerAcc"
+          class="w3-bar-block w3-hide w3-padding-large w3-medium">
+          <a href="#" onclick="document.getElementById('registerCustomerModal').style.display='block'"
+            class="w3-bar-item w3-button w3-light-grey">Customer</a> 
+          <a href="#" onclick="document.getElementById('registerSellerModal').style.display='block'"
+            class="w3-bar-item w3-button">Seller</a> 
+        </div>
+        
+        <!-- Only show this option when user logged in -->
+        <a id="logout" href="#" class="w3-bar-item w3-button w3-block w3-white w3-left-align w3-hide user-logged">
+          Log out</a>
+      </div>
+      
+      <a href="#footer" class="w3-bar-item w3-button w3-padding">Contact</a>
+      <a href="javascript:void(0)" class="w3-bar-item w3-button w3-padding"
+        onclick="document.getElementById('newsletter').style.display='block'">Newsletter</a>
+      <a href="#footer" class="w3-bar-item w3-button w3-padding">Subscribe</a>
+    </nav>
+    
+    <!-- !PAGE CONTENT! -->
+    <div class="w3-main" style="margin-left: 250px">
+    
+      <!-- Top header -->
+      <header class="w3-container w3-xlarge">
+        <p id="userMessage" class="w3-left">Shopping carts</p>
+        <p class="w3-right">
+          <!-- Symbols defined in Font Awesome (fa) v4.7, add w3-margin-right for good spacing between icons-->
+          <a id="briefcaseIcon" href="#" class="fa fa-briefcase fa-lg w3-margin-right w3-hide seller-logged" style="text-decoration:none"></a>
+          <a id="shoppingCartIcon" href="#" class="fa fa-shopping-cart fa-lg w3-margin-right w3-hide customer-logged" style="text-decoration:none"></a>
+          <a id="homeIcon" href="/" class="fa fa-home fa-lg w3-margin-right" style="text-decoration:none"></a>
+          <a id="searchIcon" href="#" class="fa fa-search fa-lg w3-margin-right" style="text-decoration:none"></a>
+          
+          <!-- Original: <i class="fa fa-shopping-cart w3-margin-right"></i> -->
+        </p>
+        <form id="searchForm" action="/search" method="get" class="w3-hide">
+	  	  <input class="w3-input w3-border" type="text" name="searchWord" required
+			placeholder='Enter a word to search products, like "chocolate"'>
+		  <br>
+		  <input type="submit" value="Submit"
+ 	        class="w3-button w3-padding-large w3-black w3-margin-bottom w3-center">
+		  <br>
+		</form>
+      </header>
+      
+      <!-- Image header -->
+      <div class="w3-display-container w3-container">
+        <img src="/images/intro-shopping-cart.jpeg" alt="Shopping cart in supermarket" style="width:100%">
+        <div class="w3-display-topleft w3-text-white w3-center"
+          style="padding: 24px 48px">
+          <h1 class="w3-jumbo w3-hide-small" style="background-color:rgba(10, 10, 10, 0.8)">
+             Shopping carts in your account</h1>
+        </div>
+      </div>
+      
+      <!-- Content message -->
+      <div class="w3-container w3-text-grey" id="contentFound">
+      <% if (shoppingCarts.length == 0) { %>
+        <p class="w3-large" >No shopping carts found</p>
+      <% } else { %>
+        <p class="w3-large">Shopping carts created</p>
+      <% } %>
+      </div>
+  
+      <!-- Shopping carts tables -->
+      <% var i; %> 
+      <% for(i = 0; i < shoppingCarts.length; i++) { %>
+      <% var shopCartPrice = 0; %>
+      <div class="w3-panel">
+        <div class="w3-row-padding" style="margin: 0 -16px">
+          <div class="w3-third">
+            <h5>Shopping Cart <%= shoppingCarts[i].Shopping_cartID%></h5>
+            <img src="/images/shopping-cart-transparent.png" style="width: 100%"
+              alt="Customer shopping cart">
+          </div>
+          <div class="w3-twothird">
+            <h5>Products</h5>
+            <table class="w3-table w3-striped w3-white">
+              <tr style="font-weight: bold">
+                <td><i class="fa fa-shopping-bag  w3-text-blue w3-large"> Product ID</i></td>
+                <td>Name</td>
+                <td>Price per unit</td>
+                <td>Quantity</td>
+              </tr>
+              <% var j; %> 
+              <% for(j = 0; j < shoppingCarts[i].products.length; j++) {%>
+              <% shopCartPrice += shoppingCarts[i].products[j].Price * shoppingCarts[i].products[j].Quantity; %>
+              <tr>
+                <td><%= shoppingCarts[i].products[j].ProductID %></td>
+                <td><%= shoppingCarts[i].products[j].Name %></td>
+                <td><%= shoppingCarts[i].products[j].Price %></td>
+                <td><%= shoppingCarts[i].products[j].Quantity %></td>
+              </tr>
+              <% } %>
+              <!-- Example row 
+              <tr>
+                <td><i class="fa fa-users w3-text-yellow w3-large"></i></td>
+                <td>New record, over 40 users.</td>
+                <td><i>17 mins</i></td>
+              </tr>
+              -->
+            </table>
+            <br>
+            <p class="w3-large" >Total price of shopping cart: <%= shopCartPrice %>€ 
+              <a id="shoppingCartBuy<%= shopCartPrice %>" href="#" class="w3-button w3-black w3-padding-large w3-large w3-margin-left" >BUY NOW</a>
+            </p>
+          </div>
+        </div>
+      </div>
+      <hr>
+      <% } %>
+      
+      <!-- Footer -->
+      <%- include('./partials/footer'); %>
+    
+    <!-- End page content -->
+    </div>
+    <script src="/client.js"></script>
+  </body>
+</html>

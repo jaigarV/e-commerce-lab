@@ -209,9 +209,10 @@ app.post('/customer/login', printRequest, upload.none(), function (req, res) {
 });
 
 app.get('/customer/:customerId/shoppingCarts', printRequest, function (req, res) {
-	// Show the customer shopping carts
+	// Retrieve the customer shopping carts
 	let customer = req.params.customerId;
 	let shopCarts = [];
+	let promisedProducts = [];
 	fs.readFile( __dirname + '/queries/find_all_customer_shopcart.sql','utf8', function(err, data) {
 		if(err){
 			res.status(500).send();
@@ -232,38 +233,69 @@ app.get('/customer/:customerId/shoppingCarts', printRequest, function (req, res)
 					console.log(result);
 					if(result.lenght !== 0){
 						result.forEach(function (item, index) {
-							let shopCart = item.Shopping_cartID;
+							let shopCart = item;
 							shopCart.products = [];
-							connectionDB.query(productsInShopcartsQuery, shopCart, function (err, result) {
-								if (err){
-									res.status(500).send();
-									throw err;
-								} else {
-									if(result.lenght !== 0){
-										result.forEach(function (item, index) {
-											// Add product to shopping cart object array
-											if(item.DescriptionImage != null){
-												item.DescriptionImage = 
-													Buffer.from(item.DescriptionImage).toString('base64');
-											}
-											shopCart.products.push(item);
-										});
+//							console.log(shopCart);
+							promisedProducts.push(new Promise(function(resolve, reject){
+								connectionDB.query(productsInShopcartsQuery, shopCart.Shopping_cartID, 
+										function (err, result) {
+									if (err){
+										// No need to send response here since we return a Promise
+//										res.status(500).send();
+//										throw err;
+										console.log("Promise rejected");
+										reject(err);
+									} else {
+										if(result.lenght !== 0){
+											result.forEach(function (item, index) {
+												// Add product to shopping cart object array
+//												console.log("Object name is: " + item.constructor.name)
+												console.log(item);
+												if(item.DescriptionImage != null){
+													item.DescriptionImage = 
+														Buffer.from(item.DescriptionImage).toString('base64');
+												}
+												shopCart.products.push(item);
+											});
+										}
+										// Add shopping cart with products to the list of Customer's shopping carts
+//										console.log(shopCarts);
 										shopCarts.push(shopCart);
+										// To return successfully from Promise
+										resolve();
 									}
-								}
-							});
-
-//							console.log(item.DescriptionImage);
+									/* Do not send response to client here, as it will respond once for every shopping cart.
+									   To solve this issue we return promises and wait for completion of all of them
+									*/
+//									console.log(shopCarts);
+//									res.status(200).render('client',{shoppingCarts:shopCarts});
+//									res.status(200).send(shopCarts);
+								});
+							}));
 						});
-						res.status(200).render('index',{products:result});
+//						console.log(promisedProducts);
+//						console.log(shopCarts);
+						Promise.all(promisedProducts)
+						.then(function(){ // Results are stored in function variable "shopCarts"
+//							console.log(shopCarts);
+							res.status(200).render('client',{shoppingCarts: shopCarts});
+						})
+						.catch(function(err){
+							res.status(500).send();
+						});
 					} else {
-						res.status(404).render('index',{products:result});
+						// We found this customer has not created a shopping cart yet
+						res.status(200).render('client',{shopCarts:shopCarts});
+						/* It makes no sense to answer with 404 since the customer has to be logged in 
+						to access this path, which means the resource should be available
+						*/
+//						res.status(404).render('client',{shopCarts:shopCarts});
 					}
-//					console.log(result);
 				}
 			});
 		});
 	});
+	// Do not send the response here, as queries have not been executed yet, remember the event handlers in Node!
 });
 
 app.put('/customer/:customerId/:productId', printRequest, function (req, res) {
@@ -641,11 +673,30 @@ app.use(function (req, res, next) {
 });
 
 // Start the server, default port for http is 80
-app.listen(port, () => { 
+const server = app.listen(port, () => { 
 	console.log(`Elshoppen server listening at http://localhost:${port}`);
 }).on("error", (e) => {
 	// Handle error event on server, 
 	// i.e. when server listens on port < 1024 and does not have root privileges
 	console.error(e.stack);
 });
+
+function shutDownServer(){
+	server.close(() => {
+		console.log("\nClosed server connections.");
+		connectionDB.end();
+	    console.log("Closed database connections.");
+	    process.exit()
+	  });
+};
+
+// Listen for TERM signal .e.g. kill
+process.on ('SIGTERM', shutDownServer);
+
+// Listen for INT signal e.g. Ctrl-C
+process.on ('SIGINT', shutDownServer); 
+
+// Listen for exit event 
+process.on('exit',shutDownServer); 
+
 
