@@ -1,1 +1,1 @@
-INSERT INTO `ecommerce_database`.`ORDER` (`Shopping_cartID`, `ProductID`) VALUES (?, ?);
+INSERT INTO `ecommerce_database`.`PRODUCTS IN CART` (`Shopping_cartID`, `ProductID`, `Quantity`) VALUES (?, ?, ?);

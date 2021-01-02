@@ -1,3 +1,3 @@
 SELECT * 
-FROM ecommerce_database.`ORDER` AS O LEFT JOIN ecommerce_database.`PRODUCT` AS P ON O.ProductID = P.ProductID
+FROM ecommerce_database.`PRODUCTS IN CART` AS PC LEFT JOIN ecommerce_database.`PRODUCT` AS P ON PC.ProductID = P.ProductID
 WHERE Shopping_cartID = ?;
