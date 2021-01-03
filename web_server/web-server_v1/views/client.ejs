@@ -112,11 +112,11 @@
               </tr>
               <% var j; %> 
               <% for(j = 0; j < shoppingCarts[i].products.length; j++) {%>
-              <% shopCartPrice += shoppingCarts[i].products[j].Price * shoppingCarts[i].products[j].Quantity; %>
+              <% shopCartPrice += shoppingCarts[i].products[j].ProductPriceThen * shoppingCarts[i].products[j].Quantity; %>
               <tr>
                 <td><%= shoppingCarts[i].products[j].ProductID %></td>
                 <td><%= shoppingCarts[i].products[j].Name %></td>
-                <td><%= shoppingCarts[i].products[j].Price %></td>
+                <td><%= shoppingCarts[i].products[j].ProductPriceThen %></td>
                 <td><%= shoppingCarts[i].products[j].Quantity %></td>
               </tr>
               <% } %>
@@ -129,8 +129,12 @@
               -->
             </table>
             <br>
-            <p class="w3-large" >Total price of shopping cart: <%= shopCartPrice %>€ 
+            <p class="w3-large" >Total price of shopping cart: <%= shopCartPrice %>€
+              <% if (shoppingCarts[i].Bought == 0) { %>
               <a id="shoppingCartBuy<%= shopCartPrice %>" href="#" class="w3-button w3-black w3-padding-large w3-large w3-margin-left" >BUY NOW</a>
+              <% } else { %>
+              <a id="shoppingCartBuy<%= shopCartPrice %>" href="#" class="w3-button w3-black w3-padding-large w3-large w3-margin-left" >BUY AGAIN</a>
+              <% } %>
             </p>
           </div>
         </div>

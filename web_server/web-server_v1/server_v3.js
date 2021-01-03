@@ -250,7 +250,7 @@ app.get('/customer/:customerId/shoppingCarts', printRequest, function (req, res)
 											result.forEach(function (item, index) {
 												// Add product to shopping cart object array
 //												console.log("Object name is: " + item.constructor.name)
-												console.log(item);
+//												console.log(item);
 												if(item.DescriptionImage != null){
 													item.DescriptionImage = 
 														Buffer.from(item.DescriptionImage).toString('base64');
@@ -282,6 +282,7 @@ app.get('/customer/:customerId/shoppingCarts', printRequest, function (req, res)
 						})
 						.catch(function(err){
 							res.status(500).send();
+							throw err;
 						});
 					} else {
 						// We found this customer has not created a shopping cart yet
