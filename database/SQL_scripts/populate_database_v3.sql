@@ -16,12 +16,20 @@ INSERT INTO `ecommerce_database`.`PRODUCT` (`ProductID`, `Name`, `Price`, `Quant
 
 INSERT INTO `ecommerce_database`.`SHOPPING CART` (`Shopping_cartID`, `Buyer`) VALUES (1, '123456789');
 INSERT INTO `ecommerce_database`.`SHOPPING CART` (`Shopping_cartID`, `Buyer`) VALUES (2, '999999999');
+INSERT INTO `ecommerce_database`.`SHOPPING CART` (`Shopping_cartID`, `Buyer`) VALUES (3, '123456789');
+
+
 
 INSERT INTO `ecommerce_database`.`PRODUCTS IN CART` (`Shopping_cartID`, `ProductID`, `Quantity`) VALUES ('1', '1', 1);
 INSERT INTO `ecommerce_database`.`PRODUCTS IN CART` (`Shopping_cartID`, `ProductID`, `Quantity`) VALUES ('1', '3', 5);
 
 INSERT INTO `ecommerce_database`.`PRODUCTS IN CART` (`Shopping_cartID`, `ProductID`, `Quantity`) VALUES ('2', '1', 1);
 INSERT INTO `ecommerce_database`.`PRODUCTS IN CART` (`Shopping_cartID`, `ProductID`, `Quantity`) VALUES ('2', '2', 3);
+
+INSERT INTO `ecommerce_database`.`PRODUCTS IN CART` (`Shopping_cartID`, `ProductID`, `Quantity`) VALUES ('3', '2', 7);
+INSERT INTO `ecommerce_database`.`PRODUCTS IN CART` (`Shopping_cartID`, `ProductID`, `Quantity`) VALUES ('3', '4', 5);
+
+UPDATE ecommerce_database.`SHOPPING CART` SET Bought = 1 WHERE Shopping_cartID = 3;
 
 INSERT INTO `ecommerce_database`.`COMMENT` (`Author`, `Rating`, `Text`, `Product`) VALUES ('123456789', '2', 'It was a good product, not extraordinary', '1');
 INSERT INTO `ecommerce_database`.`COMMENT` (`Author`, `Rating`, `Text`, `Product`) VALUES ('123456789', '5', 'It was delicious, will repeat next year', '3');
