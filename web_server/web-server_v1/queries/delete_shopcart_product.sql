@@ -1,0 +1,1 @@
+DELETE FROM ecommerce_database.`PRODUCTS IN CART` WHERE Shopping_cartID = ? AND ProductID = ?;

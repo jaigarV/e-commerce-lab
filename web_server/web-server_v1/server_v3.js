@@ -250,6 +250,9 @@ app.get('/customer/:customerId/shoppingCarts', printRequest, function (req, res)
 											result.forEach(function (item, index) {
 												// Add product to shopping cart object array
 //												console.log("Object name is: " + item.constructor.name)
+												if(item.Quantity > item.TotalQuantity){
+													item.QuantityAlert = 1;
+												}
 //												console.log(item);
 												if(item.DescriptionImage != null){
 													item.DescriptionImage = 
@@ -600,6 +603,25 @@ app.put('/product', printRequest, upload.single("upload_image"), function (req, 
 			res.status(201).send(updates);
 		});
 	});
+});
+
+app.delete('/product/:productId/shoppingCart/:shoppingCartId', printRequest, function (req, res) {
+	
+	let product = req.params.productId;
+	let shoppingCart = req.params.shoppingCartId;
+	
+	fs.readFile( __dirname + '/queries/delete_shopcart_product.sql','utf8', function(err, data) {
+		connectionDB.query(data, [shoppingCart, product] , function (err, result) {
+			if (err){
+				res.status(500).send();
+				throw err;
+			} else {
+				console.log(result);
+				res.status(200).send({deletedItems : result.affectedRows})
+			}
+		});
+	});
+	
 });
 
 app.put('/buy/:shoppingCart', printRequest, function (req, res) {

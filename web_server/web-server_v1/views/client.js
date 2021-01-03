@@ -20,6 +20,13 @@ function init() {
 		toggleShowElement(document.getElementById("searchForm"));
 	});
 	
+	// Delete products buttons
+	let deleteProductButtons = document.getElementsByClassName("delete-product");
+	for(let button of deleteProductButtons){
+		button.addEventListener('click', deleteProduct);
+	}
+	
+	
 	// Check if there is a user logged
 	if(sessionStorage.getItem("userName") !== null){
 		printUser();
@@ -64,6 +71,42 @@ function showShoppingCarts(){
 	window.location.href = '/customer/' + customerId + '/shoppingCarts';
 }
 
+function status(response) {
+	if (response.ok) {
+		return Promise.resolve(response);
+	} else {
+		return Promise.reject(new Error(response.statusText));
+	}
+}
+
+function deleteProduct(event) {
+//	console.log(event);
+	let button = event.srcElement;
+	let product = button.dataset.productid;
+	let shoppingCart = button.dataset.shoppingcartid;
+	
+	// Send data to server by manipulating HTTP method and URL
+	fetch('/product/' + product + '/shoppingCart/' + shoppingCart, {
+		method: 'DELETE'
+	})
+	.then(status)
+	.then(response => response.json())
+	.then(result => {
+		if(result.deletedItems !== 0){
+			window.location.reload(true);
+		} else {
+			//document.getElementById('errorDeleteProduct').innerHTML = "The product could not removed from shopping cart";
+			console.log('Delete product in shopping cart request failed, deleted 0 rows');
+		}
+	})
+	.catch(function(error) {
+		if(error.message === "400"){ // Indicates duplicate entry
+			console.log('Delete product in shopping cart request failed', error);
+		} else {
+			console.log('Delete product in shopping cart request failed', error);
+		}
+	});
+}
 
 function printUser(){
 	document.getElementById("userMessage").innerHTML = "Welcome " + sessionStorage.getItem("userName") + "!";
