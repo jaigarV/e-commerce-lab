@@ -140,9 +140,11 @@
             <br>
             <p class="w3-large" >Total price of shopping cart: <%= shopCartPrice %>€
               <% if (shoppingCarts[i].Bought == 0) { %>
-              <a id="shoppingCartBuy<%= shopCartPrice %>" href="#" class="w3-button w3-black w3-padding-large w3-large w3-margin-left" >BUY NOW</a>
+              <a data-shoppingCartId="<%= shoppingCarts[i].Shopping_cartID %>" 
+                href="#" class="w3-button w3-black w3-padding-large w3-large w3-margin-left buy-product">BUY NOW</a>
               <% } else { %>
-              <a id="shoppingCartBuy<%= shopCartPrice %>" href="#" class="w3-button w3-black w3-padding-large w3-large w3-margin-left" >BUY AGAIN</a>
+              <a data-shoppingCartId="<%= shoppingCarts[i].Shopping_cartID %>" 
+                href="#" class="w3-button w3-black w3-padding-large w3-large w3-margin-left buy-product">BUY AGAIN</a>
               <% } %>
             </p>
           </div>

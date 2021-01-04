@@ -20,12 +20,17 @@ function init() {
 		toggleShowElement(document.getElementById("searchForm"));
 	});
 	
+	// Buy products buttons
+	let buyProductButtons = document.getElementsByClassName("buy-product");
+	for(let button of buyProductButtons){
+		button.addEventListener('click', buyProduct);
+	}
+	
 	// Delete products buttons
 	let deleteProductButtons = document.getElementsByClassName("delete-product");
 	for(let button of deleteProductButtons){
 		button.addEventListener('click', deleteProduct);
 	}
-	
 	
 	// Check if there is a user logged
 	if(sessionStorage.getItem("userName") !== null){
@@ -77,6 +82,45 @@ function status(response) {
 	} else {
 		return Promise.reject(new Error(response.statusText));
 	}
+}
+
+function statusRegister(response) {
+	if (response.ok) {
+		return Promise.resolve(response);
+	} else if(response.status === 400){
+		return Promise.reject(new Error(response));
+	} else {
+		return Promise.reject(new Error(response.statusText));
+	}
+}
+
+function buyProduct(event) {
+	let button = event.srcElement;
+	let shoppingCart = button.dataset.shoppingcartid;
+		
+	// Send data to server by manipulating HTTP method and URL
+	fetch('/buy/' + shoppingCart, {
+		method: 'PUT'
+	})
+	.then(status)
+	.then(response => response.json())
+	.then(result => {
+		if(result.deletedItems !== 0){
+			window.location.reload(true);
+		} else {
+			//document.getElementById('errorDeleteProduct').innerHTML = "The product could not removed from shopping cart";
+			console.log('Delete product in shopping cart request failed, deleted 0 rows');
+		}
+	})
+	.catch(function(error) {
+		// Server send this status when product quantity unavailable
+		if(error.message === "400"){ // Indicates bad request from client
+			
+			console.log('Delete product in shopping cart request failed', error);
+		} else {
+			console.log('Delete product in shopping cart request failed', error);
+		}
+	});
 }
 
 function deleteProduct(event) {

@@ -315,7 +315,10 @@ app.put('/customer/:customerId/product/:productId', printRequest, function (req,
 			fs.readFile( __dirname + '/queries/add_product_shopcart.sql','utf8', function(err, data) {
 				let addProductToCartQuery = data;
 				connectionDB.beginTransaction(function(err) {
-					if (err) { throw err; }
+					if (err) { 
+						throw err;
+						res.status(500).send();
+					}
 					// Find if customer has a shopping cart to add the products in
 					let actualShoppingCarts = [];
 					// Code with events
@@ -723,26 +726,84 @@ app.delete('/product/:productId/shoppingCart/:shoppingCartId', printRequest, fun
 	
 });
 
-app.put('/buy/:shoppingCart', printRequest, function (req, res) {
-	// Buy product with specified productID = decrease product quantity by 1
-	connectionDB.beginTransaction(function(err) {
-		if (err) { throw err; }
-		connectionDB.query(data, function (error, result, fields) {
-			if (error) {
-				return connectionDB.rollback(function() {
-					throw error;
-				});
+//Buy products from shopping cart and decrease product quantity accordingly
+app.put('/buy/:shoppingCartId', printRequest, function (req, res) {
+	let shoppingCart = req.params.shoppingCartId;
+	
+	// Promise to wrap reading of SQL file queries
+	new Promise(function(resolve, reject){
+		// Missing query to update shopcart and mark as bought: buy_shopcart.sql
+		fs.readFile( __dirname + '/queries/find_products_shopcart.sql','utf8', function(err, data) {
+			if(err){
+				return reject(err);
 			}
-		}); // And more queries ...
-		
-		connectionDB.commit(function(err) {
-			if (err) {
-				return connectionDB.rollback(function() {
-					throw err;
-				});
-			}
-			console.log('Successfull transaction!');
+			let productsInShopcart = data;
+			fs.readFile( __dirname + '/queries/update_product_quantity.sql','utf8', function(err, data) {
+				if(err){
+					return reject(err);
+				}
+				let decreaseProductQuantity = data;
+				return resolve({queryProducts: productsInShopcart, queryUpdateQuantity: decreaseProductQuantity});
+			});
 		});
+	}).then(function(queries){
+		// Perform database queries to buy products
+		connectionDB.beginTransaction(function(err) {
+			if (err) {
+				res.status(500).send();
+				throw err;
+			}
+			connectionDB.query(queries.queryProducts, shoppingCart, function (error, result, fields) {
+				if (error) {
+					res.status(500).send();
+					return connectionDB.rollback(function() {
+						throw error;
+					});
+				}
+				let promisedQuantityRemoval = [];
+				let nProducts = 0;
+				// For each product perform a query to decrease the quantity bought
+				result.forEach(function (item, index) {
+					promisedQuantityRemoval.push(new Promise(function(resolve, reject){
+						connectionDB.query(queries.queryUpdateQuantity, [item.Quantity, item.ProductID], function (error, result, fields) {
+							if (error) {
+								return reject(error);
+							}
+							nProducts++;
+							return resolve();
+						});
+					}));
+				});
+				Promise.all(promisedQuantityRemoval)
+				.then(function(){
+					connectionDB.commit(function(err) {
+						if (err) {
+							return connectionDB.rollback(function() {
+								throw err;
+							});
+						}
+						console.log("Products found in shopping cart:" + result.length + ", products stock updated:" + nProducts);
+						console.log('Successfull transaction to buy products!');
+						res.status(200).send();
+					});
+				})
+				.catch(function(err){
+					if (err.code === 'ER_DATA_OUT_OF_RANGE'){
+						res.status(400).send({err});
+						return connectionDB.rollback(function() {
+						});
+					} else {
+						res.status(500).send();
+						return connectionDB.rollback(function() {
+							throw err;
+						});
+					}
+				});
+			});
+		});
+	}).catch(function(err){
+		res.status(500).send();
+		throw err;
 	});
 });
 
