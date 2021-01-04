@@ -97,10 +97,15 @@
 		 	<img src="/images/default_product.png" style="width:80%; height:100%" alt="Product default image">
 	 	<% } %>
 			<div class="w3-display-topright w3-text-white" style="padding: 24px 48px">
-				<p>
+				<p class="w3-hide customer-logged">
+                    <label for="quantityAdd" class="w3-large w3-text-grey"><strong><i class="fa fa-cubes"></i> Quantity</strong></label>
+                    <input id="quantityAdd" class="w3-input w3-border" type="number" placeholder="1" min="1"  value="1">
+                    <br>
 					<a id ="addToCartButton" href="#" 
-						class="w3-button w3-black w3-padding-large w3-large w3-hide customer-logged">
+						class="w3-button w3-black w3-padding-large w3-large">
 					ADD TO CART</a>
+                    <br>
+                    <p id="addProductShopcartMessage" class="w3-green w3-text-black w3-large w3-center"></p>
 				</p>
 				<p>
 					<a href="#" onclick="document.getElementById('updateProductModal').style.display='block'"
@@ -139,7 +144,6 @@
 			</table>
 		</div>
 		<br>
-		<p id="addProductShopcartMessage" class="w3-green w3-text-black w3-large w3-center"></p>
 		<p id="addProductShopcartErrorMessage" class="w3-amber w3-text-black w3-large w3-center"></p>
 		<!-- Subscribe section -->
 		<div class="w3-container w3-black w3-padding-32">

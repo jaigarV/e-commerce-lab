@@ -117,7 +117,7 @@ function loginCustomerRequest(event){
 		method: 'POST',
 		body: loginForm 
 	})
-	.then(status)
+	.then(statusRegister)
 	.then(response => response.json())
 	.then(result => {
 		if(result.length !== 0){
@@ -132,7 +132,11 @@ function loginCustomerRequest(event){
 		}
 	})
 	.catch(function(error) {
-	    console.log('Customer login request failed', error);
+		if(error.message === "400"){
+			document.getElementById('errorCustomerLogin').innerHTML = "The login data is incorrect";
+		} else {
+			console.log('Customer login request failed', error);
+		}
 	});
 }
 
@@ -147,7 +151,7 @@ function loginSellerRequest(event){
 		method: 'POST',
 		body: loginForm 
 	})
-	.then(status)
+	.then(statusRegister)
 	.then(response => response.json())
 	.then(result => {
 		if(result.length !== 0){
@@ -162,7 +166,11 @@ function loginSellerRequest(event){
 		}
 	})
 	.catch(function(error) {
-	    console.log('Seller login request failed', error);
+		if(error.message === "400"){
+			document.getElementById('errorSellerLogin').innerHTML = "The login data is incorrect";
+		} else {
+			console.log('Seller login request failed', error);
+		}
 	});
 }
 
@@ -197,6 +205,7 @@ function registerCustomerRequest(event){
 			document.getElementById('errorCustomerRegister').innerHTML = "Duplicate entry, you are already registered";
 		} else {
 			console.log('Customer register request failed', error);
+			document.getElementById('errorCustomerRegister').innerHTML = "The data entered is incorrect";
 		}
 	});
 }
@@ -231,6 +240,7 @@ function registerSellerRequest(event){
 			document.getElementById('errorSellerRegister').innerHTML = "Duplicate entry, you are already registered";
 		} else {
 			console.log('Seller register request failed', error);
+			document.getElementById('errorSellerRegister').innerHTML = "The data entered is incorrect";
 		}
 	});
 }

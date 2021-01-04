@@ -107,7 +107,7 @@ app.get('/', printRequest, function (req, res) {
 				res.status(500).send();
 				throw err;
 			} else {
-				if(result.lenght !== 0){
+				if(result.length !== 0){
 					result.forEach(function (item, index) {
 						if(item.DescriptionImage != null){
 							item.DescriptionImage = 
@@ -197,10 +197,10 @@ app.post('/customer/login', printRequest, upload.none(), function (req, res) {
 				res.status(500).send();
 				throw err;
 			} else {
-				if(result.lenght !== 0){
+				if(result.length !== 0){
 					res.status(200).send(result);
 				} else {
-					res.status(404).send();
+					res.status(400).send();
 				}
 //				console.log(result);
 			}
@@ -208,8 +208,9 @@ app.post('/customer/login', printRequest, upload.none(), function (req, res) {
 	});
 });
 
+//Retrieve the customer shopping carts
 app.get('/customer/:customerId/shoppingCarts', printRequest, function (req, res) {
-	// Retrieve the customer shopping carts
+	
 	let customer = req.params.customerId;
 	let shopCarts = [];
 	let promisedProducts = [];
@@ -231,11 +232,10 @@ app.get('/customer/:customerId/shoppingCarts', printRequest, function (req, res)
 					throw err;
 				} else {
 					console.log(result);
-					if(result.lenght !== 0){
+					if(result.length !== 0){
 						result.forEach(function (item, index) {
 							let shopCart = item;
 							shopCart.products = [];
-//							console.log(shopCart);
 							promisedProducts.push(new Promise(function(resolve, reject){
 								connectionDB.query(productsInShopcartsQuery, shopCart.Shopping_cartID, 
 										function (err, result) {
@@ -246,7 +246,7 @@ app.get('/customer/:customerId/shoppingCarts', printRequest, function (req, res)
 										console.log("Promise rejected");
 										reject(err);
 									} else {
-										if(result.lenght !== 0){
+										if(result.length !== 0){
 											result.forEach(function (item, index) {
 												// Add product to shopping cart object array
 //												console.log("Object name is: " + item.constructor.name)
@@ -289,7 +289,7 @@ app.get('/customer/:customerId/shoppingCarts', printRequest, function (req, res)
 						});
 					} else {
 						// We found this customer has not created a shopping cart yet
-						res.status(200).render('client',{shopCarts:shopCarts});
+						res.status(200).render('client',{shoppingCarts:shopCarts});
 						/* It makes no sense to answer with 404 since the customer has to be logged in 
 						to access this path, which means the resource should be available
 						*/
@@ -302,10 +302,11 @@ app.get('/customer/:customerId/shoppingCarts', printRequest, function (req, res)
 	// Do not send the response here, as queries have not been executed yet, remember the event handlers in Node!
 });
 
-app.put('/customer/:customerId/:productId', printRequest, function (req, res) {
-	// Add product to customer shopping cart
+//Add product to customer shopping cart
+app.put('/customer/:customerId/product/:productId', printRequest, function (req, res) {
 	let customer = req.params.customerId;
 	let product = req.params.productId;
+	let quantity = req.body.quantity;
 	
 	fs.readFile( __dirname + '/queries/find_customer_shopcart.sql','utf8', function(err, data) {
 		let searchCartQuery = data;
@@ -315,15 +316,112 @@ app.put('/customer/:customerId/:productId', printRequest, function (req, res) {
 				let addProductToCartQuery = data;
 				connectionDB.beginTransaction(function(err) {
 					if (err) { throw err; }
-					// Find if customer has a shopping cart to add the product
-					let shoppingCart;
+					// Find if customer has a shopping cart to add the products in
+					let actualShoppingCarts = [];
+					// Code with events
+					// The query already filters shoppping carts and retrieves those unpurchased
+					connectionDB.query(searchCartQuery, customer)
+					.on('error', (err) => {
+						res.status(500).send();
+						return connectionDB.rollback(function() {
+							throw err;
+						});
+					}).on('result', (result) => {
+						actualShoppingCarts.push(result);
+					// The 'end' event does not provide any data, just announces the end of results
+					}).on('end', () => {
+						console.log("Customers shopping carts unpurchased:");
+						// Use promise to converge both paths: when shopping cart is found, and when one needs to be created
+						new Promise(function(resolve, reject){
+							console.log(actualShoppingCarts);
+							if(actualShoppingCarts.length){
+								return resolve(actualShoppingCarts[0].Shopping_cartID);
+							}
+							// If customer has any unpurchased shopping cart, create one
+							connectionDB.query(createCartQuery, customer)
+							.on('error', (err) => {
+								if(err.code === 'ER_DUP_ENTRY'){
+									res.status(400).send();
+								} else {
+									res.status(500).send();
+								}
+								return reject(err);
+							}).on('result', (result) => {
+								console.log("Customers new shopping carts:");
+								console.log(result);
+								return resolve(result.insertId);
+							});
+						}).then(function(shoppingCartId){
+							//TODO: Change last input argument to be the product qunatity
+							connectionDB.query(addProductToCartQuery, [shoppingCartId, product, quantity])
+							.on('error', (err) => {
+								// The product is already present in shopping cart, we just need to increase its quantity
+								if(err.code === 'ER_DUP_ENTRY'){
+									fs.readFile( __dirname + '/queries/update_quantity_shopcart.sql','utf8', function(err, data) {
+										connectionDB.query(data, [quantity, shoppingCartId, product])
+										.on('error', (err) => {
+											res.status(400).send();
+											return connectionDB.rollback(function() {
+												throw err;
+											});
+										}).on('result', (result) => {
+											if(result.affectedRows === 1){
+												connectionDB.commit(function(err) {
+													if (err) {
+														res.status(500).send();
+														return connectionDB.rollback(function() {
+															throw err;
+														});
+													}
+													console.log('Successfull transaction to update product quantity into shopping cart!');
+//													console.log(result);
+													res.status(200).send(result);
+												});
+											} else {
+												console.log('Transaction failed to update product quantity into shopping cart! :(');
+												res.status(400).send();
+												return connectionDB.rollback(function() {
+													throw err;
+												});
+											}
+										});
+									});
+								} else {
+									res.status(500).send();
+									return connectionDB.rollback(function() {
+										throw err;
+									});
+								}
+							}).on('result', (result) => {
+								connectionDB.commit(function(err) {
+									if (err) {
+										res.status(500).send();
+										return connectionDB.rollback(function() {
+											throw err;
+										});
+									}
+									console.log('Successfull transaction to add product into shopping cart!');
+//									console.log(result);
+									res.status(200).send(result);
+								});
+							});
+						}).catch(function(err){
+							res.status(500).send();
+							return connectionDB.rollback(function() {
+								throw err;
+							});
+						});
+					});
+					
+					// Code with callbacks
+					/*
 					connectionDB.query(searchCartQuery, customer, function (error, result, fields) {
 						if (error) {
 							return connectionDB.rollback(function() {
 								throw error;
 							});
 						} else {
-							// result es un array
+							// The query "result" is an array
 							shoppingCart = result[0].Shopping_cartID;
 							console.log("Shopping cart found: " + shoppingCart); 
 							// If customer has no shopping cart, create one
@@ -392,7 +490,7 @@ app.put('/customer/:customerId/:productId', printRequest, function (req, res) {
 							}
 						}
 					}); // And more queries ...
-					
+					*/
 				});
 			});
 		});
@@ -449,10 +547,10 @@ app.post('/seller/login', printRequest, upload.none(), function (req, res) {
 				res.status(500).send();
 				throw err;
 			} else {
-				if(result.lenght !== 0){
+				if(result.length !== 0){
 					res.status(200).send(result);
 				} else {
-					res.status(404).send();
+					res.status(400).send();
 				}
 //				console.log(result);
 			}
@@ -477,7 +575,7 @@ app.get('/seller/:sellerId/products', printRequest, function (req, res) {
 				}
 			}
 			// Update webpage information
-			if(result.lenght !== 0){
+			if(result.length !== 0){
 				result.forEach(function (item, index) {
 					if(item.DescriptionImage != null){
 						item.DescriptionImage = 
@@ -506,7 +604,7 @@ app.get('/product/:productId', printRequest, function (req, res) {
 				}
 			}
 			// Update webpage information
-			if(result.lenght !== 0){
+			if(result.length !== 0){
 				result.forEach(function (item, index) {
 					if(item.DescriptionImage != null){
 						item.DescriptionImage = 
@@ -595,6 +693,7 @@ app.put('/product', printRequest, upload.single("upload_image"), function (req, 
 				res.status(400).send(err.sqlMessage);
 			} else {
 				//console.error(err.stack);
+				res.status(500).send();
 				throw err;
 			}
 		}).on('result', (result) => {
@@ -663,7 +762,7 @@ app.get('/search', printRequest, function (req, res) {
 				throw err;
 			}
 			// Update webpage information
-			if(result.lenght !== 0){
+			if(result.length !== 0){
 				result.forEach(function (item, index) {
 					if(item.DescriptionImage != null){
 						item.DescriptionImage = 
