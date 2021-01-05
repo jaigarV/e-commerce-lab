@@ -92,7 +92,7 @@
 		<!-- Image header -->
 		<div class="w3-display-container w3-container">
 		<% if(product[0].DescriptionImage != null){%>
-			<img src="data:image;base64,<%= product[0].DescriptionImage%>" alt="Product image" style="width:80%; height:100%">
+			<img src="data:image;base64,<%= product[0].DescriptionImage%>" alt="Product image" style="width:100%; height:100%; max-width: 800px" >
 	 	<% } else { %>
 		 	<img src="/images/default_product.png" style="width:80%; height:100%" alt="Product default image">
 	 	<% } %>
@@ -145,6 +145,35 @@
 		</div>
 		<br>
 		<p id="addProductShopcartErrorMessage" class="w3-amber w3-text-black w3-large w3-center"></p>
+        <br>
+        <!-- Comments section -->
+        <div class="w3-container w3-padding-32 w3-text-white" style="background-color:rgba(158, 187, 188, 0.8)">
+          <h1>Comments by users</h1>
+        </div>
+        <br>
+        <% for(let i = 0; i < comments.length; i++) {%>
+          <div class="w3-row-padding">
+          <div class="w3-card w3-round w3-light-grey w3-container w3-padding">
+            <span class="w3-right w3-opacity"><%= comments[i].WritingDate.toDateString()%>, <%= comments[i].WritingDate.toLocaleTimeString()%></span>
+            <h4><%= comments[i].Name%> said:</h4>
+            <hr class="w3-clear">
+            <p class="w3-border w3-padding w3-white" ><%= comments[i].Text%></p>
+          </div>
+        </div>
+          <br>
+        <% } %>
+        <!-- Comment input -->
+        <div class="w3-row-padding">
+          <div class="w3-card w3-round w3-blue-grey w3-container w3-padding">
+            <h4>Please, write your comment in the box below</h4>
+            <textarea id="newComment" name="commentText" rows="1" cols="150" placeholder="Review: Such a nice product, I love it!"
+              class="w3-hide" style ="resize: none; overflow: hidden; height: auto; width: 100%"></textarea>
+            <p contenteditable="true" class="w3-border w3-padding w3-white" ></p>
+            <button type="button" class="w3-button w3-theme w3-black "><i class="fa fa-pencil"></i>  Post</button> 
+          </div>
+        </div>
+        <br>
+    
 		<!-- Subscribe section -->
 		<div class="w3-container w3-black w3-padding-32">
 			<h1>Subscribe</h1>

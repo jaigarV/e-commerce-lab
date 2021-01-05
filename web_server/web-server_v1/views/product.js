@@ -42,7 +42,6 @@ function init() {
 		document.getElementById("login").click();
 	}
 	
-
 }
 
 //Show and hide the accordions on menu click

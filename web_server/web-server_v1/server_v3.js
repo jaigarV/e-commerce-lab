@@ -601,7 +601,7 @@ app.get('/seller/:sellerId/products', printRequest, function (req, res) {
 	});
 });
 
-app.get('/product/:productId', printRequest, function (req, res) {
+app.get('/product/:productId', printRequest, getComments, function (req, res) {
 	
 	let product = req.params.productId;
 	fs.readFile( __dirname + '/queries/find_product.sql','utf8', function(err, data) {
@@ -622,13 +622,31 @@ app.get('/product/:productId', printRequest, function (req, res) {
 							Buffer.from(item.DescriptionImage).toString('base64');
 					}
 				});
-				res.status(200).render('product',{product:result});
+				res.status(200).render('product',{product:result, comments: req.middlewareContent});
 			} else {
-				res.status(404).render('product',{product:result});
+				res.status(404).render('product',{product:result, comments: req.middlewareContent});
 			}
 		});
 	});
 });
+
+function getComments(req, res, next) {
+	let product = req.params.productId;
+	let comments = [];
+	fs.readFile( __dirname + '/queries/find_product_comments.sql','utf8', function(err, data) {
+		connectionDB.query(data, product, function (err, result) {
+			if (err){
+				res.status(500).send();
+				throw err;
+			}
+			console.log("Comments retrieved:")
+			console.log(result);
+			// Add information to request as new property
+			req.middlewareContent = result;
+			next(); // Express way to chain middlewares
+		});
+	});
+}
 
 app.post('/product', printRequest, upload.single("upload_image"), function (req, res) {
 	// Create new product in database with req body data
