@@ -172,9 +172,13 @@ app.post('/customer/register', printRequest, upload.none(), function (req, res) 
 				throw err;
 			}
 		}).on('result', (result) => {
-			console.log(newCustomer);
-		    // Send confirmation to client
-			res.status(201).send(newCustomer);
+			if(result.affectedRows === 1){
+				console.log("New customer registered");
+			    // Send confirmation to client
+				res.status(201).send(newCustomer);
+			} else {
+				res.status(500).send();
+			}
 		});
 	});
 });
@@ -530,9 +534,13 @@ app.post('/seller/register', printRequest, upload.none(), function (req, res) {
 				throw err;
 			}
 		}).on('result', (result) => {
-			console.log(result);
-		    // Send confirmation to client
-			res.status(201).send(newSeller);
+			if(result.affectedRows === 1){
+				console.log("New seller registered");
+			    // Send confirmation to client
+				res.status(201).send(newSeller);
+			} else {
+				res.status(500).send();
+			}
 		});
 	});
 });
@@ -718,7 +726,7 @@ app.delete('/product/:productId/shoppingCart/:shoppingCartId', printRequest, fun
 				res.status(500).send();
 				throw err;
 			} else {
-				console.log(result);
+				console.log("Removed product with ID:" + product);
 				res.status(200).send({deletedItems : result.affectedRows})
 			}
 		});
