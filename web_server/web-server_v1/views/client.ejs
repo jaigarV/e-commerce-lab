@@ -146,6 +146,8 @@
               <a data-shoppingCartId="<%= shoppingCarts[i].Shopping_cartID %>" 
                 href="#" class="w3-button w3-black w3-padding-large w3-large w3-margin-left buy-product">BUY AGAIN</a>
               <% } %>
+              <p id="buyMsg<%= shoppingCarts[i].Shopping_cartID%>" class="w3-green w3-text-black w3-large w3-center"></p>
+              <p id="errorBuyMsg<%= shoppingCarts[i].Shopping_cartID%>" class="w3-amber w3-text-black w3-large"></p>
             </p>
           </div>
         </div>

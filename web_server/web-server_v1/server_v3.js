@@ -743,7 +743,13 @@ app.put('/buy/:shoppingCartId', printRequest, function (req, res) {
 					return reject(err);
 				}
 				let decreaseProductQuantity = data;
-				return resolve({queryProducts: productsInShopcart, queryUpdateQuantity: decreaseProductQuantity});
+				fs.readFile( __dirname + '/queries/buy_shopcart.sql','utf8', function(err, data) {
+					if(err){
+						return reject(err);
+					}
+					let boughtShopCart = data;
+					return resolve({queryProducts: productsInShopcart, queryUpdateQuantity: decreaseProductQuantity, queryBuyStatus: boughtShopCart});
+				});
 			});
 		});
 	}).then(function(queries){
@@ -776,20 +782,31 @@ app.put('/buy/:shoppingCartId', printRequest, function (req, res) {
 				});
 				Promise.all(promisedQuantityRemoval)
 				.then(function(){
-					connectionDB.commit(function(err) {
-						if (err) {
+					// Update shopping cart status to flag as bought by customer
+					connectionDB.query(queries.queryBuyStatus, shoppingCart, function (error, result, fields) {
+						if (error) {
+							res.status(500).send();
 							return connectionDB.rollback(function() {
-								throw err;
+								throw error;
 							});
 						}
-						console.log("Products found in shopping cart:" + result.length + ", products stock updated:" + nProducts);
-						console.log('Successfull transaction to buy products!');
-						res.status(200).send();
+						// Finish transaction by committing all changes
+						connectionDB.commit(function(err) {
+							if (err) {
+								return connectionDB.rollback(function() {
+									throw err;
+								});
+							}
+							console.log("Products found in shopping cart:" + result.length + ", products stock updated:" + nProducts);
+							console.log('Successfull transaction to buy products!');
+							res.status(200).send({shoppingCartId:shoppingCart});
+						});
 					});
 				})
 				.catch(function(err){
 					if (err.code === 'ER_DATA_OUT_OF_RANGE'){
-						res.status(400).send({err});
+						console.log('Transaction not completed given not enough product quantity to buy products!');
+						res.status(400).send(err);
 						return connectionDB.rollback(function() {
 						});
 					} else {

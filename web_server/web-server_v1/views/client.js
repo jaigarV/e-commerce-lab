@@ -47,6 +47,13 @@ function init() {
 		// Show user the accordion open as example
 		document.getElementById("login").click();
 	}
+	
+	if (window.location.hash == '#reload-buy') {
+		let shopcartId = sessionStorage.getItem("shopcartID");
+		document.getElementById("buyMsg"+shopcartId).innerHTML = "Buy transaction successful!";
+	} else {
+		sessionStorage.removeItem("shopcartID");
+	}	
 }
 
 
@@ -84,11 +91,14 @@ function status(response) {
 	}
 }
 
-function statusRegister(response) {
+function statusRegister2(response) {
 	if (response.ok) {
 		return Promise.resolve(response);
-	} else if(response.status === 400){
-		return Promise.reject(new Error(response));
+	} else if(response.status === 400){ // Indicates bad request from client
+		/* If we create an Error we loose the response object as it only passes a String representation 
+		 * of the object in its "message" property
+		 */
+		return Promise.resolve(response);
 	} else {
 		return Promise.reject(new Error(response.statusText));
 	}
@@ -102,24 +112,30 @@ function buyProduct(event) {
 	fetch('/buy/' + shoppingCart, {
 		method: 'PUT'
 	})
-	.then(status)
+	.then(statusRegister2)
 	.then(response => response.json())
 	.then(result => {
-		if(result.deletedItems !== 0){
+		console.log(result);
+		if(result.hasOwnProperty('shoppingCartId')){
+			// I cannot execute any extra code after a reload, so I need to add a trigger with window.location.hash
+			window.location.hash = 'reload-buy';
+			sessionStorage.setItem('shopcartID', shoppingCart);
 			window.location.reload(true);
+			// No need to clean previous message as page will reload
+//			document.getElementById("errorBuyMsg"+shoppingCart).innerHTML = "";
+		} else if(result.hasOwnProperty('code') && result.code === "ER_DATA_OUT_OF_RANGE"){
+			document.getElementById("buyMsg"+shoppingCart).innerHTML = "";
+			document.getElementById("errorBuyMsg"+shoppingCart).innerHTML = "Products in shopping cart exceed product stock, buy transaction cancelled";
+			console.log('Products in shopping cart exceed product stock, buy transaction cancelled');
 		} else {
-			//document.getElementById('errorDeleteProduct').innerHTML = "The product could not removed from shopping cart";
-			console.log('Delete product in shopping cart request failed, deleted 0 rows');
+			document.getElementById("buyMsg"+shoppingCart).innerHTML = "";
+			document.getElementById("errorBuyMsg"+shoppingCart).innerHTML = "Buy transaction cancelled";
 		}
 	})
 	.catch(function(error) {
 		// Server send this status when product quantity unavailable
-		if(error.message === "400"){ // Indicates bad request from client
-			
-			console.log('Delete product in shopping cart request failed', error);
-		} else {
-			console.log('Delete product in shopping cart request failed', error);
-		}
+		console.error('Buy transaction cancelled due to unexpected error', error.message);
+		document.getElementById("errorBuyMsg"+shoppingCart).innerHTML = "Buy transaction cancelled due to unexpected error";
 	});
 }
 
