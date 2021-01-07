@@ -109,7 +109,7 @@
 				</p>
 				<p>
 					<a href="#" onclick="document.getElementById('updateProductModal').style.display='block'"
-						class="w3-button w3-black w3-padding-large w3-large w3-hide seller-logged">
+						class="w3-button w3-black w3-padding-large w3-large w3-hide own-seller-logged">
 					MODIFY</a>
 				</p>
 			</div>
@@ -141,6 +141,10 @@
 	            	<td>Description</td>
 	            	<td><i><%= product[0].DescriptionText%></i></td>
 	          	</tr>
+                <tr class="w3-hide"> <!-- If its hidden keep it as the last one for nice format -->
+                  <td>Seller ID</td>
+                  <td><i id="sellerId"><%= product[0].Seller%></i></td>
+                </tr>
 			</table>
 		</div>
 		<br>

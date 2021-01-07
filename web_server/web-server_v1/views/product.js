@@ -439,6 +439,16 @@ function toggleSellerMenu(){
 	for(let element of document.getElementsByClassName("seller-logged")){
 		toggleShowElement(element);
 	}
+	
+	let viewerId = sessionStorage.getItem("userID");
+	let sellerId = document.getElementById("sellerId").innerHTML;
+	console.log(viewerId + " = " + sellerId +" ?");
+	if(viewerId == sellerId){
+		for(let element of document.getElementsByClassName("own-seller-logged")){
+			toggleShowElement(element);
+		}
+	}
+
 }
 
 function toggleShowElement(element){
