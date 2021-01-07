@@ -31,5 +31,5 @@ INSERT INTO `ecommerce_database`.`PRODUCTS IN CART` (`Shopping_cartID`, `Product
 
 UPDATE ecommerce_database.`SHOPPING CART` SET Bought = 1 WHERE Shopping_cartID = 3;
 
-INSERT INTO `ecommerce_database`.`COMMENT` (`Author`, `Rating`, `Text`, `Product`) VALUES ('123456789', '2', 'It was a good product, not extraordinary', '1');
-INSERT INTO `ecommerce_database`.`COMMENT` (`Author`, `Rating`, `Text`, `Product`) VALUES ('123456789', '5', 'It was delicious, will repeat next year', '3');
+INSERT INTO `ecommerce_database`.`COMMENT` (`Author`, `Rating`, `Text`, `Product`) VALUES ('123456789', '2', 'Hello,<br>It was a good product, not extraordinary', '1');
+INSERT INTO `ecommerce_database`.`COMMENT` (`Author`, `Rating`, `Text`, `Product`) VALUES ('123456789', '5', 'It was delicious, will repeat next year<br>Regards,<br>Tester', '3');

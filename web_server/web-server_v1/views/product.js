@@ -26,6 +26,11 @@ function init() {
 	
 	document.getElementById("updateProductForm").addEventListener('submit', updateProductRequest);
 	
+	document.getElementById("postCommentButton").addEventListener('click', registerComment);
+	// Configures the input to use \n as paragraph separator instead of <br>
+	// -- Not working...
+//	document.execCommand("defaultParagraphSeparator", false, "\n");
+	
 	let starRatings = document.getElementsByClassName("rating");
 	for(let star of starRatings){
 		star.addEventListener('mouseover', toggleStars);
@@ -305,12 +310,59 @@ function updateProductRequest(event){
 	});
 }
 
-function showShoppingCarts(){
-	// Make get request to server to retrieve the customer shopping cart web page
-	let customerId = sessionStorage.getItem("userID");
-	console.log("The customer Id is: " + customerId);
-	// The address should be /customer/:customerId/shoppingCarts
-	window.location.href = '/customer/' + customerId + '/shoppingCarts';
+function registerComment(){
+	// Retrieve data from html elements
+	let comment = document.getElementById("newComment");
+	// At the moment this is only replacing the first <br> found, but is unnecessary now
+//	let text = comment.innerHTML.replace("<br>", "\n");
+	let text = comment.innerHTML;
+	let rating = comment.dataset.rating;
+	let productID = document.getElementById("ProductID").value;
+	
+	// This will be sent as multipart/form-data
+	let commentForm = new FormData();
+	commentForm.append("Author", sessionStorage.getItem("userID"));
+	commentForm.append("Rating", rating);
+	commentForm.append("Text", text);
+	commentForm.append("Product", productID);
+	
+	console.log(...commentForm);
+	// Send form data to server
+	fetch('/product/' + productID + '/comment', {
+		method: 'POST',
+		body: commentForm
+	})
+	// Keep modifying
+	.then(statusRegister)
+	.then(response => response.json())
+	.then(result => {
+		let msgElement = document.getElementById("addCommentMessage");
+		if(result.length !== 0){
+//			console.log(result);
+			if (msgElement.className.indexOf("w3-red") === -1) {
+				msgElement.className = msgElement.className.replace(" w3-red", "");
+			}
+			msgElement.innerHTML = "The comment has been succesfully inserted!";
+			setTimeout( ()=> { window.location.reload(true);}, 2000);
+		} else {
+			if (msgElement.className.indexOf("w3-red") === -1) {
+				msgElement.className += " w3-red";
+			}
+			msgElement.innerHTML = "The comment could not be added, wrong data";
+		}
+	})
+	.catch(function(error) {
+//		console.log("The error msg is:" + error.message);
+		if(error.message === "400"){
+			let msgElement = document.getElementById('addCommentMessage')
+			if (msgElement.className.indexOf("w3-red") === -1) {
+				msgElement.className += " w3-red";
+			}
+			msgElement.innerHTML = "Duplicate entry, product already commented";
+		} else {
+			console.log('Add comment to product failed', error);
+		}
+	});
 }
 
 function toggleStars(event){
@@ -357,6 +409,14 @@ function setRating(event){
 	// Store rating as data in html element
 	let comment = document.getElementById("newComment");
 	comment.setAttribute("data-rating", starIndex);
+}
+
+function showShoppingCarts(){
+	// Make get request to server to retrieve the customer shopping cart web page
+	let customerId = sessionStorage.getItem("userID");
+	console.log("The customer Id is: " + customerId);
+	// The address should be /customer/:customerId/shoppingCarts
+	window.location.href = '/customer/' + customerId + '/shoppingCarts';
 }
 
 function printUser(){

@@ -733,6 +733,30 @@ app.put('/product', printRequest, upload.single("upload_image"), function (req, 
 	});
 });
 
+app.post('/product/:productId/comment', printRequest, upload.none(), function (req, res) {
+	let newComment = req.body;
+	newComment.Product = req.params.productId;
+	// newComment object needs to have matching properties with database table to correctly insert data
+	console.log(newComment);
+	
+	fs.readFile( __dirname + '/queries/create_comment.sql','utf8', function(err, data) {
+		connectionDB.query(data, newComment)
+		.on('error', (err) => {
+			if(err.code === 'ER_DUP_ENTRY'){
+				console.error(err);
+				res.status(400).send(err.sqlMessage);
+			} else {
+				//console.error(err.stack);
+				throw err;
+			}
+		}).on('result', (result) => {
+//			console.log(result);
+		    // Send confirmation to client
+			res.status(201).send(newComment);
+		});
+	});
+});
+
 app.delete('/product/:productId/shoppingCart/:shoppingCartId', printRequest, function (req, res) {
 	
 	let product = req.params.productId;

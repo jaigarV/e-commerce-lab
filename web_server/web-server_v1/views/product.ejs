@@ -166,13 +166,13 @@
             <% } %>
             </h4>
             <hr class="w3-clear">
-            <p class="w3-border w3-padding w3-white" ><%= comments[i].Text%></p>
+            <p class="w3-border w3-padding w3-white" ><%- comments[i].Text%></p>
           </div>
         </div>
           <br>
         <% } %>
         <!-- Comment input -->
-        <div class="w3-row-padding">
+        <div class="w3-row-padding user-logged w3-hide">
           <div class="w3-card w3-round w3-blue-grey w3-container w3-padding">
             <h4>Please, write your comment and choose a rating for the product<span class="w3-margin-left"></span>
               <a id ="star1" href="javascript:void(0);" class="fa fa-star rating" style="text-decoration:none"></a>
@@ -183,7 +183,8 @@
             <textarea  name="commentText" rows="1" cols="150" placeholder="Such a nice product, I love it!"
               class="w3-hide" style ="resize: none; overflow: hidden; height: auto; width: 100%"></textarea>
             <p id="newComment" data-rating="1" contenteditable="true" class="w3-border w3-padding w3-white" ></p>
-            <button type="button" class="w3-button w3-theme w3-black "><i class="fa fa-pencil"></i>  Post</button> 
+            <button id="postCommentButton" type="button" class="w3-button w3-theme w3-black "><i class="fa fa-pencil"></i>  Post</button>
+            <p id="addCommentMessage" class="w3-large w3-center w3-text-black w3-green"></p>
           </div>
         </div>
         <br>
