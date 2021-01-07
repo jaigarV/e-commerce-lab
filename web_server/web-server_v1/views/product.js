@@ -26,6 +26,13 @@ function init() {
 	
 	document.getElementById("updateProductForm").addEventListener('submit', updateProductRequest);
 	
+	let starRatings = document.getElementsByClassName("rating");
+	for(let star of starRatings){
+		star.addEventListener('mouseover', toggleStars);
+		star.addEventListener('mouseleave', keepStars);
+		star.addEventListener('click', setRating);
+	}
+	
 	// Check if there is a user logged
 	if(sessionStorage.getItem("userName") !== null){
 		printUser();
@@ -304,6 +311,52 @@ function showShoppingCarts(){
 	console.log("The customer Id is: " + customerId);
 	// The address should be /customer/:customerId/shoppingCarts
 	window.location.href = '/customer/' + customerId + '/shoppingCarts';
+}
+
+function toggleStars(event){
+	// Get event trigger info
+	let starId = event.currentTarget.id;
+	let starIndex = Number(starId.charAt(4));
+	for (let i = 5; i > 0; i--){
+		let starElement = document.getElementById(starId.replace(/[0-9]+/,i.toString()));
+		// Check if starts are active
+		if(starElement.className.includes(" checked")){
+			// If it is active but above rating turn it off
+			if(i > starIndex){
+				starElement.className = starElement.className.replace(" checked", "");
+			}
+		// If it is inactive but above or equal to rating turn it on
+		} else if(i <= starIndex) {
+			starElement.className += " checked";
+		}
+	}
+}
+
+function keepStars(event){
+	let starId = event.currentTarget.id;
+	let comment = document.getElementById("newComment");
+	let rating = comment.dataset.rating
+	for (let i = 5; i > 0; i--){
+		let starElement = document.getElementById(starId.replace(/[0-9]+/,i.toString()));
+		// Check if starts are active
+		if(starElement.className.includes(" checked")){
+			// If it is active but above rating turn it off
+			if(i > rating){
+				starElement.className = starElement.className.replace(" checked", "");
+			}
+		// If it is inactive but above or equal to rating turn it on
+		} else if(i <= rating) {
+			starElement.className += " checked";
+		}
+	}
+}
+
+function setRating(event){
+	let starId = event.currentTarget.id;
+	let starIndex = Number(starId.charAt(4));
+	// Store rating as data in html element
+	let comment = document.getElementById("newComment");
+	comment.setAttribute("data-rating", starIndex);
 }
 
 function printUser(){
