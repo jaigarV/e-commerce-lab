@@ -246,38 +246,47 @@ function addToCartRequest(){
 	let productID = document.getElementById("ProductID").value;
 	let customerID = sessionStorage.getItem("userID");
 	let productQuantity = {quantity: document.getElementById("quantityAdd").value};
-	 console.log("Send data -> ProductID:" + productID + ", userID:" + customerID + ", quantity:" + productQuantity.quantity);
 	
-	 // Send form data to server
-	fetch('/customer/' + customerID + '/product/' + productID, {
-		method: 'PUT',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify(productQuantity)
-	})
-	.then(statusRegister)
-	.then(response => response.json())
-	.then(result => {
-		if(result.length !== 0){
-			console.log(result);
-			let userMsg = document.getElementById("addProductShopcartMessage");
-			userMsg.innerHTML = "The product has been added to shopping cart correctly";;
-		} else {
-			document.getElementById('"addProductShopcartErrorMessage"')
-				.innerHTML = "The add product to shopping cart request has incorrect data";
-		}
-	})
-	.catch(function(error) {
-//		console.log("The error msg is:" + error.message);
-		if(error.message === "400"){
-			document.getElementById('addProductShopcartErrorMessage').innerHTML = "Duplicate entry, product already in shopping cart";
-			let userMsg = document.getElementById('"addProductShopcartMessage"');
-			userMsg.innerHTML = "Duplicate";
-		} else {
-			console.log('Add product to shopping cart request failed', error);
-		}
-	});
+	let userMsg = document.getElementById("addProductShopcartMessage");
+	let userErrorMsg = document.getElementById("addProductShopcartErrorMessage");
+	
+	if(productQuantity.quantity > 0){
+		console.log("Send data -> ProductID:" + productID + ", userID:" + customerID + ", quantity:" + productQuantity.quantity);
+		
+		 // Send form data to server
+		fetch('/customer/' + customerID + '/product/' + productID, {
+			method: 'PUT',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(productQuantity)
+		})
+		.then(statusRegister)
+		.then(response => response.json())
+		.then(result => {
+			if(result.length !== 0){
+				console.log(result);
+				userMsg.innerHTML = "The product has been added to shopping cart correctly";
+				userErrorMsg.innerHTML = "";
+			} else {
+				userErrorMsg.innerHTML = "The add product to shopping cart request has incorrect data";
+				userMsg.innerHTML = "";
+			}
+		})
+		.catch(function(error) {
+//			console.log("The error msg is:" + error.message);
+			if(error.message === "400"){
+				userErrorMsg.innerHTML = "Duplicate entry, product already in shopping cart";
+				userMsg.innerHTML = "";
+			} else {
+				console.log('Add product to shopping cart request failed', error);
+			}
+		});
+	} else {
+		userErrorMsg.innerHTML = "The product quantity has to be greater than 0 to be added to the shopping cart";
+		userMsg.innerHTML = "";
+	}
+	
 }
 
 function updateProductRequest(event){
@@ -286,7 +295,7 @@ function updateProductRequest(event){
 
 	// This will be sent as multipart/form-data
 	let loginForm = new FormData(document.getElementById("updateProductForm"));
-	loginForm.append("SellerID", sessionStorage.getItem("userID"));
+	loginForm.append("Seller", sessionStorage.getItem("userID"));
 	
 	// Send form data to server
 	fetch('/product', {
@@ -442,7 +451,7 @@ function toggleSellerMenu(){
 	
 	let viewerId = sessionStorage.getItem("userID");
 	let sellerId = document.getElementById("sellerId").innerHTML;
-	console.log(viewerId + " = " + sellerId +" ?");
+//	console.log(viewerId + " = " + sellerId +" ?");
 	if(viewerId == sellerId){
 		for(let element of document.getElementsByClassName("own-seller-logged")){
 			toggleShowElement(element);

@@ -4,8 +4,8 @@ INSERT INTO `ecommerce_database`.`ADMINISTRATOR` (`IdentityNumber`, `Name`, `Pas
 INSERT INTO `ecommerce_database`.`CUSTOMER` (`IdentityNumber`, `Name`, `Password`, `Email`, `Phone`, `Address`, `Gender`, `Age`, `Country`) VALUES ('123456789', 'TestCustomer', 'test', 'TestCutomer@test.com', '123456', 'Test Street, Number 0, 000 00, Lulea', 'Other', '0', 'World');
 INSERT INTO `ecommerce_database`.`CUSTOMER` (`IdentityNumber`, `Name`, `Password`, `Email`, `Phone`, `Address`, `Gender`, `Age`, `Country`) VALUES ('999999999', 'TestCustomer2', 'test', 'TestCutomer2@test.com', '654321', 'Test Street, Number 2, 000 00, Lulea', 'Other', '200', 'Space');
 
-INSERT INTO `ecommerce_database`.`SELLER` (`OrganizationID`, `Name`, `Password`, `Email`, `Phone`, `Address`, `Country`) VALUES ('1223344', 'TestSeller', 'test', 'TestSeller@test.com', '00112233', 'Test factory, Number 101, 111 11, Gothenburg', ' Sweden');
-INSERT INTO `ecommerce_database`.`SELLER` (`OrganizationID`, `Name`, `Password`, `Email`, `Phone`, `Address`, `Country`) VALUES ('4433221', 'TestSeller2', 'test', 'TestSeller2@test.com', '33221100', 'Test factory, Number 102, 111 12, Stockholm', ' Sweden');
+INSERT INTO `ecommerce_database`.`SELLER` (`OrganizationID`, `Name`, `Password`, `Email`, `Phone`, `Address`, `Country`) VALUES ('11223344', 'TestSeller', 'test', 'TestSeller@test.com', '00112233', 'Test factory, Number 101, 111 11, Gothenburg', ' Sweden');
+INSERT INTO `ecommerce_database`.`SELLER` (`OrganizationID`, `Name`, `Password`, `Email`, `Phone`, `Address`, `Country`) VALUES ('44332211', 'TestSeller2', 'test', 'TestSeller2@test.com', '33221100', 'Test factory, Number 102, 111 12, Stockholm', ' Sweden');
 
 -- Include `ProductID` to be sure which ID the products get assigned in the database and use them in following SQL statements
 INSERT INTO `ecommerce_database`.`PRODUCT` (`ProductID`, `Name`, `Price`, `Quantity`, `DescriptionText`, `DescriptionImage`, `Seller`) VALUES ('1', 'House', '1000000', '2', 'Spectacular house in the north pole', LOAD_FILE('/var/lib/mysql-files/test_image.jpg'), '1223344');
